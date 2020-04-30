@@ -1,3 +1,4 @@
+"""Video models."""
 from datetime import datetime
 from enum import Enum
 
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 
 class DiscType(Enum):
     """The kind of disc for the ``VideoInstance``."""
+
     bd = 'BD'
     bd3d = 'BD3D'
     dvd = 'DVD'
@@ -19,9 +21,11 @@ class DiscType(Enum):
 class DVDRegion(Enum):
     """
     What region the DVD is encoded for.
+
     See https://en.wikipedia.org/wiki/DVD_region_code#Region_codes_and_countries for what countries
     each region consists of.
     """
+
     r0 = 'Region 0'
     r1 = 'Region 1'
     r2 = 'Region 2'
@@ -38,9 +42,11 @@ class DVDRegion(Enum):
 class BluRegion(Enum):
     """
     What region the Blu-Ray is encoded for.
+
     See https://en.wikipedia.org/wiki/DVD_region_code#Blu-ray_Disc_region_codes for what countries
     each region consists of. Most BD's are region 0 (region free).
     """
+
     a = 'A'
     b = 'B'
     c = 'C'
@@ -52,9 +58,11 @@ class BluRegion(Enum):
 class SubType(Enum):
     """
     What kind of type the subtitles are.
+
     Separate means the subs are on a separate track. Hardocded means the subs are burned into the
     video. Forced means there is a separate track that has been flagged forced.
     """
+
     separate = 'Separate'
     hardcoded = 'Hardcoded'
     forced = 'Forced'
@@ -62,6 +70,13 @@ class SubType(Enum):
 
 
 class VideoInstance(BaseModel):
+    """
+    A single instance of a video.
+
+    For example, the extended edition of a video may be different than the theatrical, even though
+    they are the same movie.
+    """
+
     disc_type: List[DiscType] = DiscType['unknown']
     region: List[Union[DVDRegion, BluRegion]] = BluRegion['unknown']
     timestamps: List[str]
@@ -75,15 +90,20 @@ class VideoInstance(BaseModel):
 
     @validator('timestamps')
     def valid_timestamps(cls, v):
+        """Validate timestamps."""
         # TODO Validate timestamps for real...
         return v
 
 
 class VideoInstanceInDB(VideoInstance):
+    """The VideoInstance stored in the db."""
+
     id: int
 
 
 class VideoBase(BaseModel):
+    """Base video class."""
+
     title: str = None
     description: str = None
     imdb_id: str = None
@@ -91,4 +111,6 @@ class VideoBase(BaseModel):
 
 
 class VideoBaseInDB(VideoBase):
+    """The VideoBase stored in the db."""
+
     id: int
