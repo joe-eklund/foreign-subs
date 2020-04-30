@@ -1,8 +1,9 @@
 """Video models."""
 from datetime import datetime
 from enum import Enum
+from typing import List, Union
 
-from pydantic import List, Union, validator
+from pydantic import validator
 
 from pydantic import BaseModel
 
@@ -69,7 +70,16 @@ class SubType(Enum):
     unknown = 'Unknown'
 
 
-class VideoInstance(BaseModel):
+class Metadata(BaseModel):
+    """Metadata info."""
+
+    date_created: datetime = datetime.now()
+    created_by: str = None
+    last_modified: datetime = None
+    last_modified_by: str = None
+
+
+class VideoInstance(Metadata):
     """
     A single instance of a video.
 
@@ -77,16 +87,13 @@ class VideoInstance(BaseModel):
     they are the same movie.
     """
 
+    video_base_id = str
     disc_type: List[DiscType] = DiscType['unknown']
     region: List[Union[DVDRegion, BluRegion]] = BluRegion['unknown']
     timestamps: List[str]
     sub_type: SubType = SubType['unknown']
     description: str = None
     track: int = None
-    date_created: datetime = datetime.now()
-    created_by: str = None
-    last_modified: datetime = None
-    last_modified_by: str = None
 
     @validator('timestamps')
     def valid_timestamps(cls, v):
@@ -107,7 +114,12 @@ class VideoBase(BaseModel):
     title: str = None
     description: str = None
     imdb_id: str = None
-    instances = List[VideoInstance]
+
+
+class VideoBaseResponse(VideoBase):
+    """Base video class to return."""
+
+    metadata: Metadata = Metadata()
 
 
 class VideoBaseInDB(VideoBase):
