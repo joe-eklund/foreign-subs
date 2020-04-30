@@ -3,7 +3,7 @@ from enum import Enum
 
 from pydantic import List, Union, validator
 
-from app.models.shared import BasicModel
+from pydantic import BaseModel
 
 
 class DiscType(Enum):
@@ -61,7 +61,7 @@ class SubType(Enum):
     unknown = 'Unknown'
 
 
-class VideoInstance(BasicModel):
+class VideoInstance(BaseModel):
     disc_type: List[DiscType] = DiscType['unknown']
     region: List[Union[DVDRegion, BluRegion]] = BluRegion['unknown']
     timestamps: List[str]
@@ -83,7 +83,7 @@ class VideoInstanceInDB(VideoInstance):
     id: int
 
 
-class VideoBase(BasicModel):
+class VideoBase(BaseModel):
     title: str = None
     description: str = None
     imdb_id: str = None
