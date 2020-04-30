@@ -1,5 +1,7 @@
 """CRUD functions for movies."""
 
+from models.video import VideoBase
+
 
 class MovieDAO():
     """The DAO for interacting with movies."""
@@ -8,9 +10,9 @@ class MovieDAO():
         """Initialize a ``MovieDAO``."""
         self.client = client
 
-    def create(self):
+    def create(self, movie: VideoBase):
         """Create a movie."""
-        raise NotImplementedError
+        return self.client.foreign_subs.movies.insert_one(movie.dict()).inserted_id
 
     def read(self):
         """Read a movie."""
