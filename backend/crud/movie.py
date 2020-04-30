@@ -1,6 +1,6 @@
 """CRUD functions for movies."""
 
-from models.video import VideoBase
+from models.video import VideoBaseResponse
 
 
 class MovieDAO():
@@ -10,9 +10,14 @@ class MovieDAO():
         """Initialize a ``MovieDAO``."""
         self.client = client
 
-    def create(self, movie: VideoBase):
-        """Create a movie."""
-        return self.client.foreign_subs.movies.insert_one(movie.dict()).inserted_id
+    def create(self, movie: VideoBaseResponse) -> str:
+        """
+        Create a movie.
+
+        :param movie: A dict representing the movie.
+        :returns: The id of the newly created movie.
+        """
+        return self.client.foreign_subs.movies.insert_one(movie).inserted_id
 
     def read(self):
         """Read a movie."""
