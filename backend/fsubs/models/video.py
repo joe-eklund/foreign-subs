@@ -54,7 +54,7 @@ class BluRegion(str, Enum):
     unknown = 'UNKNOWN'
 
 
-class SubType(Enum):
+class SubType(str, Enum):
     """
     What kind of type the subtitles are.
 
@@ -85,7 +85,6 @@ class VideoInstance(BaseModel):
     they are the same movie.
     """
 
-    video_base_id: str
     disc_type: DiscType = DiscType['unknown']
     region: Union[DVDRegion, BluRegion] = BluRegion['unknown']
     timestamps: List[str]
@@ -104,6 +103,7 @@ class VideoInstanceInDB(VideoInstance):
     """The VideoInstance stored in the db."""
 
     id: str
+    video_base_id: str
     metadata: Metadata = Metadata()
 
 
