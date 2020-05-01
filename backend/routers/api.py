@@ -12,12 +12,26 @@ app = FastAPI()
 
 MOVIE_DAO = MovieDAO(client=MongoClient('localhost', 27017, username='root', password='example'))
 
-# GET
-# returns VideoBase including list of VideoInstances
+
 @app.get("/movies/{uri}")
-async def get_movie(uri):
-    """Get a movie."""
+async def get_movie(uri: str):
+    """
+    Get a movie.
+
+    :param uri: The uri of the movie to get.
+    """
     return MOVIE_DAO.read(movie_id=uri)
+
+# GET movie instance
+@app.get("/movies/{uri}/versions/{v_uri}", status_code=405)
+async def get_movie_version(uri: str, v_uri: str):
+    """
+    Get a movie version.
+
+    :param uri: The uri of the base movie to use.
+    :param v_uri: The uri of the version of the movie to get.
+    """
+    return "Not implemented yet."
 
 # POST
 @app.post("/movies", response_model=str, status_code=201)
