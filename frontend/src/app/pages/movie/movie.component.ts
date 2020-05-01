@@ -16,7 +16,7 @@ export class MovieComponent implements OnInit {
 
   movie: VideoBase;
   displayedColumns: string[] = [
-    'position', 'disc_type', 'sub_type', 'timestamps', 'track', 'star'
+    'position', 'disc_type', 'sub_type', 'timestamps', 'description', 'track', 'star'
   ];
   dataSource = new MatTableDataSource<Version>();
   selection = new SelectionModel<Version>(true, []);
@@ -79,7 +79,7 @@ export class MovieComponent implements OnInit {
   }
 
   delete(element: VideoBase): void {
-    this.moviesService.delete(element.id).subscribe(res => {
+    this.moviesService.delete_version(element.id).subscribe(res => {
       this.refresh();
     });
   }

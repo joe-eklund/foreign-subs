@@ -69,6 +69,12 @@
       </ng-container>
     
       <!-- Symbol Column -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef> Description </th>
+        <td mat-cell *matCellDef="let element" (click)="editVersion(movie.id, element)"> {{element.description}} </td>
+      </ng-container>
+    
+      <!-- Symbol Column -->
       <ng-container matColumnDef="track">
         <th mat-header-cell *matHeaderCellDef> Track </th>
         <td mat-cell *matCellDef="let element" (click)="editVersion(movie.id, element)"> {{element.track}} </td>
