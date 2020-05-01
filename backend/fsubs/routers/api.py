@@ -101,6 +101,7 @@ async def update_movie(uri: str, movie: VideoBase):
 
     MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict())
 
+    movie_to_store.id = uri
     return movie_to_store
 
 
