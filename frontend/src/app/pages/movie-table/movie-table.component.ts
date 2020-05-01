@@ -20,8 +20,8 @@ export interface VideoBase {
   styleUrls: ['./movie-table.component.scss']
 })
 export class MovieTableComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'position', 'title', 'imdb_id', 'description', 'star'];
-  dataSource = new MatTableDataSource();
+  displayedColumns: string[] = ['position', 'title', 'imdb_id', 'description', 'star'];
+  dataSource = new MatTableDataSource<VideoBase>();
   selection = new SelectionModel<VideoBase>(true, []);
 
   constructor(
@@ -100,4 +100,9 @@ export class MovieTableComponent implements OnInit {
     this.router.navigate(['/movies/' + element.id]);
   }
 
+  delete(element: VideoBase): void {
+    this.movieService.delete(element.id).subscribe(res => {
+      this.refresh();
+    });
+  }
 }
