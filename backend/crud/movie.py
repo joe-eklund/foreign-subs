@@ -1,6 +1,6 @@
 """CRUD functions for movies."""
 
-from models.video import VideoBaseInDB
+from backend.models.video import VideoBaseInDB
 
 from bson.objectid import ObjectId
 

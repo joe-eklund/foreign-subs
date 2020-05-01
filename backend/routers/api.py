@@ -5,12 +5,20 @@ import addict as ad
 from fastapi import FastAPI
 from pymongo import MongoClient
 
-from crud.movie import MovieDAO
-from models.video import VideoBase, VideoInstance
+from backend.config.config import config
+from backend.crud.movie import MovieDAO
+from backend.models.video import VideoBase, VideoInstance
 
 app = FastAPI()
 
-MOVIE_DAO = MovieDAO(client=MongoClient('localhost', 27017, username='root', password='example'))
+client = MongoClient(
+    host=config["db"]["hostname"],
+    port=config["db"].getint("port"),
+    username='root',
+    password='example',
+)
+
+MOVIE_DAO = MovieDAO(client=client)
 
 
 # /movies endpoints
