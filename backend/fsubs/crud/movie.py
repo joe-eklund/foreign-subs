@@ -1,10 +1,14 @@
 """CRUD functions for movies."""
 
+import logging
+
 from typing import Any, Dict, List
 
 from fsubs.models.video import VideoBaseInDB
 
 from bson.objectid import ObjectId
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MovieDAO():
@@ -48,7 +52,7 @@ class MovieDAO():
         movies = self.client.foreign_subs.movies.find().limit(page_length)
         movies = list(movies)
         for movie in movies:
-            movie['_id'] = str(movie['_id'])
+            movie['id'] = str(movie.pop('_id'))
         return movies
 
     def update(self, movie_id: str, movie: VideoBaseInDB):
