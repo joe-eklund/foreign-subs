@@ -10,6 +10,8 @@ import { LoaderModule } from './core/common/loader/loader.module';
 import { NavModule } from './core/common/nav/nav.module';
 import { AppService } from './core/services/app.service';
 import { AuthInterceptor } from './core/services/interceptors/auth.service';
+import { MovieTableModule } from './pages/movie-table/movie-table.module';
+import { MaterialModule } from './material/material.module';
 
 @NgModule({
   declarations: [
@@ -20,9 +22,11 @@ import { AuthInterceptor } from './core/services/interceptors/auth.service';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    MaterialModule,
     FooterModule,
     LoaderModule,
-    NavModule
+    NavModule,
+    MovieTableModule,
   ],
   providers: [
     AppService,
