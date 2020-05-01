@@ -4,11 +4,6 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { ModifyMovieComponent } from './modify-movie/modify-movie.component';
 
-export interface DialogData {
-  animal: string;
-  name: string;
-}
-
 export interface PeriodicElement {
   name: string;
   position: number;
@@ -39,8 +34,8 @@ export class MovieTableComponent {
   dataSource = new MatTableDataSource(ELEMENT_DATA);
   selection = new SelectionModel<PeriodicElement>(true, []);
 
-  animal: string;
   name: string;
+  animal: string;
 
   constructor(public dialog: MatDialog) {}
 
@@ -71,10 +66,13 @@ export class MovieTableComponent {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  openDialog(): void {
+  openDialog(element): void {
+    if (element == null) {
+      element = {};
+    }
     const dialogRef = this.dialog.open(ModifyMovieComponent, {
       width: '250px',
-      data: {name: this.name, animal: this.animal}
+      data: element
     });
 
     dialogRef.afterClosed().subscribe(result => {
