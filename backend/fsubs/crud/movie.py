@@ -39,7 +39,7 @@ class MovieDAO():
         :returns: Dict representing the movie.
         """
         movie = self.client.foreign_subs.movies.find_one({'_id': ObjectId(movie_id)})
-        movie['_id'] = str(movie['_id'])
+        movie['id'] = str(movie['_id'])
         return movie
 
     def read_multi(self, page_length) -> List[Dict[str, Any]]:
