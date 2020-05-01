@@ -11,7 +11,8 @@ export class ModifyMovieComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ModifyMovieComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: VideoBase) {}
+    @Inject(MAT_DIALOG_DATA) public data: VideoBase
+  ) {}
 
   onNoClick(): void {
     this.dialogRef.close();
