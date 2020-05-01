@@ -1,0 +1,7 @@
+<!-- Displays the blue bar at the top of the page. Any time that there is a loading request the bar will animate to show that something is being loaded. -->
+<mat-progress-bar *ngIf="loading | async; else not_loading"
+    mode="indeterminate"
+    class="top"></mat-progress-bar>
+<ng-template #not_loading>
+    <div class="col-md-12 top"></div>
+</ng-template>
