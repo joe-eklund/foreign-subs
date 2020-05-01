@@ -10,6 +10,7 @@ from pymongo import MongoClient
 
 from fsubs.config.config import config
 from fsubs.crud.movie import MovieDAO
+from fsubs.models.misc import ObjectIdStr
 from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance
 
 LOGGER = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ async def create_movie(movie: VideoBase):
 
 
 @app.get("/movies/{uri}", response_model=VideoBaseInDB, tags=['movies'])
-async def get_movie(uri: str):
+async def get_movie(uri: ObjectIdStr):
     """
     Get a movie.
 
@@ -83,7 +84,7 @@ async def get_movies(start: int = 0, page_length: int = 100):
 
 
 @app.put("/movies/{uri}", tags=['movies'], response_model=VideoBaseInDB, status_code=201)
-async def update_movie(uri: str, movie: VideoBase):
+async def update_movie(uri: ObjectIdStr, movie: VideoBase):
     """
     Update a movie.
 
@@ -109,7 +110,7 @@ async def update_movie(uri: str, movie: VideoBase):
 
 
 @app.delete("/movies/{uri}", tags=['movies'], status_code=204)
-async def delete_movie(uri: str):
+async def delete_movie(uri: ObjectIdStr):
     """
     Delete a movie.
 
@@ -121,7 +122,7 @@ async def delete_movie(uri: str):
 # /movies/versions endpoints
 
 @app.post("/movies/{uri}/versions", tags=['movie versions'], status_code=405)
-async def create_movie_version(uri: str, movie_version: VideoInstance):
+async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     """
     Create a new movie version.
 
@@ -133,7 +134,7 @@ async def create_movie_version(uri: str, movie_version: VideoInstance):
 
 
 @app.get("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
-async def get_movie_version(uri: str):
+async def get_movie_version(uri: ObjectIdStr):
     """
     Get a movie version.
 
@@ -143,7 +144,7 @@ async def get_movie_version(uri: str):
 
 
 @app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
-async def update_movie_version(uri: str, movie_version: VideoInstance):
+async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     """
     Update a movie version.
 
@@ -155,7 +156,7 @@ async def update_movie_version(uri: str, movie_version: VideoInstance):
 
 
 @app.delete("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
-async def delete_movie_version(uri: str):
+async def delete_movie_version(uri: ObjectIdStr):
     """
     Delete a movie version.
 
