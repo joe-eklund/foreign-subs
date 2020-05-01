@@ -3,9 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Union
 
-from pydantic import validator
-
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class DiscType(str, Enum):
@@ -76,7 +74,7 @@ class Metadata(BaseModel):
     date_created: datetime = datetime.now()
     created_by: str = None
     last_modified: datetime = None
-    last_modified_by: str = None
+    modified_by: str = None
 
 
 class VideoInstance(BaseModel):
@@ -105,6 +103,7 @@ class VideoInstance(BaseModel):
 class VideoInstanceInDB(VideoInstance):
     """The VideoInstance stored in the db."""
 
+    id: str
     metadata: Metadata = Metadata()
 
 
@@ -119,4 +118,5 @@ class VideoBase(BaseModel):
 class VideoBaseInDB(VideoBase):
     """Base video class stored in db."""
 
+    id: str
     metadata: Metadata = Metadata()
