@@ -116,13 +116,7 @@ class VideoBase(BaseModel):
     imdb_id: str = None
 
 
-class VideoBaseResponse(VideoBase):
-    """Base video class to return."""
+class VideoBaseInDB(VideoBase):
+    """Base video class stored in db."""
 
     metadata: Metadata = Metadata()
-
-
-class VideoBaseInDB(VideoBase):
-    """The VideoBase stored in the db."""
-
-    id: int
