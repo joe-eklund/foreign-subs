@@ -100,3 +100,20 @@ class MovieDAO():
         if movie_version:
             movie_version['id'] = str(movie_version.pop('_id'))
         return movie_version
+
+    def read_movie_version(self, movie_id: str) -> Dict[str, Any]:
+        """
+        Read all the versions of a movie.
+
+        :param movie_version_id: The id of the movie to read.
+        :returns: Dict representing the movie.
+        """
+        LOGGER.debug(f'Reading movie version: <{movie_id}>.')
+        movie_versions = self.client.foreign_subs.movie_versions.find(
+            {'video_base_id': str(movie_id)})
+        versions = []
+        for v in movie_versions:
+            v['id'] = str(v.pop('_id'))
+            versions.append(v)
+        print(versions)
+        return versions

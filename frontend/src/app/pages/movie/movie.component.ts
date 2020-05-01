@@ -42,10 +42,10 @@ export class MovieComponent implements OnInit {
     });
   }
 
-  addVersion(movieId): void {
+  editVersion(movieId: string, version: Version): void {
     const dialogRef = this.dialog.open(VersionComponent, {
       width: '250px',
-      data: {}
+      data: version ? version : {}
     });
 
     dialogRef.afterClosed().subscribe((result: Version) => {

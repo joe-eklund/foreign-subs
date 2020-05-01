@@ -28,7 +28,7 @@
     <mat-toolbar-row>
       <h3>Versions</h3>
       <span class="example-spacer"></span>
-      <button mat-mini-fab color="primary" (click)="addVersion(movie.id)">
+      <button mat-mini-fab color="primary" (click)="editVersion(movie.id)">
         <mat-icon>add</mat-icon>
       </button>
     </mat-toolbar-row>
@@ -83,13 +83,9 @@
               <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="openDialog(element)">
+          <button mat-menu-item (click)="editVersion(movie.id, element)">
               <mat-icon>edit</mat-icon>
               <span>Edit</span>
-          </button>
-          <button mat-menu-item (click)="viewSingle(element)">
-              <mat-icon>remove_red_eye</mat-icon>
-              <span>View</span>
           </button>
           <button mat-menu-item (click)="delete(element)">
               <mat-icon>delete</mat-icon>

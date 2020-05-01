@@ -155,7 +155,7 @@ async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
 
 
 @app.get("/movies/versions/{uri}", tags=['movie versions'], status_code=200)
-async def get_movie_version(uri: ObjectIdStr):
+async def get_versions(uri: ObjectIdStr):
     """
     Get a movie version.
 
@@ -166,6 +166,18 @@ async def get_movie_version(uri: ObjectIdStr):
     if not movie_version:
         raise HTTPException(status_code=404, detail="Movie version not found.")
     return movie_version
+
+
+@app.get("/movies/{uri}/versions", tags=['movie versions'], status_code=200)
+async def get_movie_version(uri: ObjectIdStr):
+    """
+    Get all of the versions for a movie.
+
+    **uri** - The uri of the version of the movie to get.
+    """
+    LOGGER.debug(f'Getting movie version: {uri}.')
+    movie_versions = MOVIE_DAO.read_movie_version(movie_id=uri)
+    return movie_versions
 
 
 @app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
