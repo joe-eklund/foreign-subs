@@ -5,9 +5,9 @@ import addict as ad
 from fastapi import FastAPI
 from pymongo import MongoClient
 
-from backend.config.config import config
-from backend.crud.movie import MovieDAO
-from backend.models.video import VideoBase, VideoInstance
+from fsubs.config.config import config
+from fsubs.crud.movie import MovieDAO
+from fsubs.models.video import VideoBase, VideoInstance
 
 app = FastAPI()
 

@@ -4,4 +4,4 @@ from configparser import ConfigParser
 
 config = ConfigParser()
 
-config.read("backend/config/default.ini")
+config.read("fsubs/config/default.ini")

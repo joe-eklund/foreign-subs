@@ -7,8 +7,8 @@ from pathlib import Path
 import typer
 import uvicorn
 
-from backend.routers.api import app
-from backend.config.config import config
+from fsubs.routers.api import app
+from fsubs.config.config import config
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,11 @@ def main(
     logging.basicConfig(level=log_level.upper())
     logger.debug(f"Loading config from {cfg}.")
     config.read(cfg)
-    uvicorn.run(app, host=config["app"]["bind_addr"], port=config["app"].getint("bind_port"))
+    uvicorn.run(
+        app,
+        host=config["app"]["bind_addr"],
+        port=config["app"].getint("bind_port"),
+        reload=True)
 
 
 if __name__ == "__main__":

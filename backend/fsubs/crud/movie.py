@@ -1,6 +1,6 @@
 """CRUD functions for movies."""
 
-from backend.models.video import VideoBaseInDB
+from fsubs.models.video import VideoBaseInDB
 
 from bson.objectid import ObjectId
 
@@ -30,6 +30,7 @@ class MovieDAO():
     def read_multi(self, page_length):
         """Read a movie."""
         movies = self.client.foreign_subs.movies.find().limit(page_length)
+        movies = list(movies)
         print(movies)
         #movies['_id'] = str(movie['_id'])
         return movies
