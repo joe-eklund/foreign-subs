@@ -8,7 +8,7 @@ from pydantic import validator
 from pydantic import BaseModel
 
 
-class DiscType(Enum):
+class DiscType(str, Enum):
     """The kind of disc for the ``VideoInstance``."""
 
     bd = 'BD'
@@ -19,7 +19,7 @@ class DiscType(Enum):
     unknown = 'UNKNOWN'
 
 
-class DVDRegion(Enum):
+class DVDRegion(str, Enum):
     """
     What region the DVD is encoded for.
 
@@ -40,7 +40,7 @@ class DVDRegion(Enum):
     unknown = 'UNKNOWN'
 
 
-class BluRegion(Enum):
+class BluRegion(str, Enum):
     """
     What region the Blu-Ray is encoded for.
 
@@ -79,7 +79,7 @@ class Metadata(BaseModel):
     last_modified_by: str = None
 
 
-class VideoInstance(Metadata):
+class VideoInstance(BaseModel):
     """
     A single instance of a video.
 
@@ -87,9 +87,9 @@ class VideoInstance(Metadata):
     they are the same movie.
     """
 
-    video_base_id = str
-    disc_type: List[DiscType] = DiscType['unknown']
-    region: List[Union[DVDRegion, BluRegion]] = BluRegion['unknown']
+    video_base_id: str
+    disc_type: DiscType = DiscType['unknown']
+    region: Union[DVDRegion, BluRegion] = BluRegion['unknown']
     timestamps: List[str]
     sub_type: SubType = SubType['unknown']
     description: str = None
@@ -105,15 +105,15 @@ class VideoInstance(Metadata):
 class VideoInstanceInDB(VideoInstance):
     """The VideoInstance stored in the db."""
 
-    id: int
+    metadata: Metadata = Metadata()
 
 
 class VideoBase(BaseModel):
     """Base video class."""
 
-    title: str = None
+    title: str
+    imdb_id: str
     description: str = None
-    imdb_id: str = None
 
 
 class VideoBaseInDB(VideoBase):
