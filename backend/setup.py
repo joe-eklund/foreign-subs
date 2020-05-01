@@ -10,7 +10,7 @@ setup(name='fsubs',
       packages=find_packages(),
       entry_points={
           'console_scripts': [
-              'fsubs = fsubs.__main__:main',
+              'fsubs = fsubs.__main__:cli',
           ]
       },
       install_requires=[
