@@ -1,8 +1,15 @@
 <mat-toolbar>
-    <span>Application Title</span>
+    <span>Foreign Subtitles</span>
   
     <!-- This fills the remaining space of the current row -->
     <span class="example-fill-remaining-space"></span>
-  
-    <span>Right Aligned Text</span>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon button with a vertical three dot icon">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+    <button mat-menu-item>
+        <mat-icon>account_box</mat-icon>
+        <span>Sign In</span>
+    </button>
+    </mat-menu>
 </mat-toolbar>
