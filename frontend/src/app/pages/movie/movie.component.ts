@@ -55,7 +55,7 @@ export class MovieComponent implements OnInit {
       }
       if (result.id) {
         this.moviesService.update_version(result.id, result).subscribe(res => {
-          console.log('updated');
+          this.refresh();
         });
       } else {
         this.moviesService.create_version(movieId, result).subscribe(res => {
