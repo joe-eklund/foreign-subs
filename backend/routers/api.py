@@ -17,7 +17,7 @@ MOVIE_DAO = MovieDAO(client=MongoClient('localhost', 27017, username='root', pas
 @app.get("/movies/{uri}")
 async def get_movie(uri):
     """Get a movie."""
-    return str(MOVIE_DAO.read(movie_id=uri))
+    return MOVIE_DAO.read(movie_id=uri)
 
 # POST
 @app.post("/movies", response_model=str, status_code=201)
@@ -34,5 +34,18 @@ async def create_movie(movie: VideoBase):
     return str(MOVIE_DAO.create(movie=movie_to_store.to_dict()))
 
 # PUT
+@app.put("/movies", response_model=str, status_code=201)
+async def update_movie(uri: str, movie: VideoBase):
+    """Update a movie."""
+    user = 'admin'  # change to real user with auth later
+    movie_to_store = ad.Dict(movie.dict())
+
+    # Set metadata
+    movie_to_store.Metadata.date_created = datetime.now(timezone.utc)
+    movie_to_store.Metadata.created_by = user
+    movie_to_store.Metadata.last_modified = datetime.now(timezone.utc)
+    movie_to_store.Metadata.modified_by = user
+    return str(MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict()))
+
 
 # DELETE

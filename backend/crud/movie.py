@@ -23,11 +23,13 @@ class MovieDAO():
 
     def read(self, movie_id: str):
         """Read a movie."""
-        return self.client.foreign_subs.movies.find_one({'_id': ObjectId(movie_id)})
+        movie = self.client.foreign_subs.movies.find_one({'_id': ObjectId(movie_id)})
+        movie['_id'] = str(movie['_id'])
+        return movie
 
-    def update(self):
+    def update(self, movie_id: str, movie: VideoBaseResponse) -> str:
         """Update a movie."""
-        raise NotImplementedError
+        return self.client.foreign_subs.movies.update({'_id': ObjectId(movie_id)}, {'$set': movie})
 
     def delete(self):
         """Delete a movie."""
