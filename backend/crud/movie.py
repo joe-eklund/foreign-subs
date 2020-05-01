@@ -27,6 +27,13 @@ class MovieDAO():
         movie['_id'] = str(movie['_id'])
         return movie
 
+    def read_multi(self, page_length):
+        """Read a movie."""
+        movies = self.client.foreign_subs.movies.find().limit(page_length)
+        print(movies)
+        #movies['_id'] = str(movie['_id'])
+        return movies
+
     def update(self, movie_id: str, movie: VideoBaseInDB) -> str:
         """Update a movie."""
         return self.client.foreign_subs.movies.update({'_id': ObjectId(movie_id)}, {'$set': movie})

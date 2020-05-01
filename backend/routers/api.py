@@ -51,6 +51,17 @@ async def get_movie(uri: str):
     return MOVIE_DAO.read(movie_id=uri)
 
 
+@app.get("/movies", tags=['movies'])
+async def get_movies(start: int = 0, page_length: int = 2):
+    """
+    Get movies.
+
+    **param start** - The starting position to start getting movies at.
+    **param page_length** - The number of movies to get.
+    """
+    return MOVIE_DAO.read_multi(page_length=page_length)
+
+
 @app.put("/movies/{uri}", tags=['movies'], response_model=str, status_code=201)
 async def update_movie(uri: str, movie: VideoBase):
     """
