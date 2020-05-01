@@ -10,7 +10,7 @@ Create a Python virtual environment with `python -m venv venv` and `source venv/
 
 `cd` into the `backend` directory and run `pip install -r requirements.txt` to install dependencies.
 
-From the project root, run `python -m backend`. Add `--help` for additional options.
+Run `fsubs`. Add `--help` for additional options.
 
 ### Configuration
 
