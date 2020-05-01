@@ -5,24 +5,24 @@ import { MatDialog } from '@angular/material/dialog';
 import { ModifyMovieComponent } from './modify-movie/modify-movie.component';
 import { MoviesService } from 'src/app/core/services/movies.service';
 
-export interface PeriodicElement {
-  name: string;
+export interface VideoBase {
+  title: string;
+  imdb_id: string;
+  description: string;
   position: number;
-  weight: number;
-  symbol: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
+const ELEMENT_DATA: VideoBase[] = [
+  {position: 1, title: 'Thingy', imdb_id: 'Hydrogen', description: 'H'},
+  {position: 2, title: 'Thingy', imdb_id: 'Helium', description: 'He'},
+  {position: 3, title: 'Thingy', imdb_id: 'Lithium', description: 'Li'},
+  {position: 4, title: 'Thingy', imdb_id: 'Beryllium', description: 'Be'},
+  {position: 5, title: 'Thingy', imdb_id: 'Boron', description: 'B'},
+  {position: 6, title: 'Thingy', imdb_id: 'Carbon', description: 'C'},
+  {position: 7, title: 'Thingy', imdb_id: 'Nitrogen', description: 'N'},
+  {position: 8, title: 'Thingy', imdb_id: 'Oxygen', description: 'O'},
+  {position: 9, title: 'Thingy', imdb_id: 'Fluorine', description: 'F'},
+  {position: 10, title: 'Thingy', imdb_id: 'Neon', description: 'Ne'},
 ];
 
 @Component({
@@ -31,12 +31,9 @@ const ELEMENT_DATA: PeriodicElement[] = [
   styleUrls: ['./movie-table.component.scss']
 })
 export class MovieTableComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol', 'star'];
+  displayedColumns: string[] = ['select', 'position', 'title', 'imdb_id', 'description', 'star'];
   dataSource = new MatTableDataSource(ELEMENT_DATA);
-  selection = new SelectionModel<PeriodicElement>(true, []);
-
-  name: string;
-  animal: string;
+  selection = new SelectionModel<VideoBase>(true, []);
 
   constructor(
     public dialog: MatDialog,
@@ -44,9 +41,9 @@ export class MovieTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // this.movieService.read().subscribe(res => {
-    //   console.log(res);
-    // });
+    this.movieService.read().subscribe(res => {
+      console.log(res);
+    });
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -64,7 +61,7 @@ export class MovieTableComponent implements OnInit {
   }
 
   /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: PeriodicElement): string {
+  checkboxLabel(row?: VideoBase): string {
     if (!row) {
       return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
     }
@@ -87,7 +84,7 @@ export class MovieTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.animal = result;
+      console.log(result);
     });
   }
 
