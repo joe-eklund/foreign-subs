@@ -29,6 +29,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
-  ]
+  ],
+  entryComponents: [ModifyMovieComponent]
 })
 export class MovieTableModule { }
