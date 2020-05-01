@@ -40,13 +40,10 @@ export class MovieComponent implements OnInit {
     });
   }
 
-  addVersion(element): void {
-    if (element == null) {
-      element = {};
-    }
+  addVersion(movieId): void {
     const dialogRef = this.dialog.open(VersionComponent, {
       width: '250px',
-      data: element
+      data: {video_base_id: movieId}
     });
 
     dialogRef.afterClosed().subscribe((result: Version) => {

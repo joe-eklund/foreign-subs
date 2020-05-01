@@ -4,9 +4,14 @@
     <mat-label>Disc Type</mat-label>
     <input matInput [(ngModel)]="data.disc_type">
   </mat-form-field>
+  <mat-chip-list>
+    <mat-chip *ngFor="let stamp of data.timestamps;let i = index;">
+      {{stamp}} <mat-icon class="icon-display" (click)="removeTimeStamp(i)">close</mat-icon>
+    </mat-chip>
+  </mat-chip-list>
   <mat-form-field>
     <mat-label>Timestamps</mat-label>
-    <input matInput [(ngModel)]="data.timestamps">
+    <input matInput (keyup.enter)="addTimeStamp($event);tempTimeStamp=''" [(ngModel)]="tempTimeStamp">
   </mat-form-field>
   <mat-form-field>
     <mat-label>Description</mat-label>

@@ -26,4 +26,15 @@ export class VersionComponent {
     this.dialogRef.close();
   }
 
+  addTimeStamp(data: KeyboardEvent) {
+    if (this.data.timestamps) {
+      return this.data.timestamps.push(data.target.value);
+    }
+    this.data.timestamps = [data.target.value];
+  }
+
+  removeTimeStamp(idx) {
+    this.data.timestamps.splice(idx, 1);
+  }
+
 }

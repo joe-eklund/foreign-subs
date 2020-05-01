@@ -13,6 +13,7 @@ import { VersionComponent } from './version/version.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatChipsModule } from '@angular/material/chips';
 
 
 
@@ -32,6 +33,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatDialogModule,
     MatTableModule,
     MatMenuModule,
+    MatChipsModule,
   ],
   exports: [MovieComponent],
   entryComponents: [VersionComponent]
