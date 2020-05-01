@@ -8,7 +8,7 @@ From the project root, run `docker-compose up -d` to launch MongoDB. Run `docker
 
 Create a Python virtual environment with `python -m venv venv` and `source venv/bin/activate`.
 
-`cd` into the `backend` directory and run `pip install -r requirements.txt` to install dependendencies.
+`cd` into the `backend` directory and run `pip install -r requirements.txt` to install dependencies.
 
 From the project root, run `python -m backend`. Add `--help` for additional options.
 
