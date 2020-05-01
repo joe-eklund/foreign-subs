@@ -2,7 +2,7 @@
 
 ## Database
 
-From the project root, run `docker-compose up -d` to launch MongoDB. Run `docker-compose down` to stop.
+Inside the `docker` folder, run `docker-compose up -d` to launch MongoDB. Run `docker-compose down` to stop.
 
 ## Backend
 
