@@ -41,8 +41,6 @@ async def update_movie(uri: str, movie: VideoBase):
     movie_to_store = ad.Dict(movie.dict())
 
     # Set metadata
-    movie_to_store.Metadata.date_created = datetime.now(timezone.utc)
-    movie_to_store.Metadata.created_by = user
     movie_to_store.Metadata.last_modified = datetime.now(timezone.utc)
     movie_to_store.Metadata.modified_by = user
     return str(MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict()))
