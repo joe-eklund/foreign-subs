@@ -2,6 +2,8 @@
 
 from models.video import VideoBaseResponse
 
+from bson.objectid import ObjectId
+
 
 class MovieDAO():
     """The DAO for interacting with movies."""
@@ -19,9 +21,9 @@ class MovieDAO():
         """
         return self.client.foreign_subs.movies.insert_one(movie).inserted_id
 
-    def read(self):
+    def read(self, movie_id: str):
         """Read a movie."""
-        raise NotImplementedError
+        return self.client.foreign_subs.movies.find_one({'_id': ObjectId(movie_id)})
 
     def update(self):
         """Update a movie."""

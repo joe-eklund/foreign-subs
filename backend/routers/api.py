@@ -17,7 +17,7 @@ MOVIE_DAO = MovieDAO(client=MongoClient('localhost', 27017, username='root', pas
 @app.get("/movies/{uri}")
 async def get_movie(uri):
     """Get a movie."""
-    raise NotImplementedError
+    return str(MOVIE_DAO.read(movie_id=uri))
 
 # POST
 @app.post("/movies", response_model=str, status_code=201)
