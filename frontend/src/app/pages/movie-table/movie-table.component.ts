@@ -10,20 +10,8 @@ export interface VideoBase {
   imdb_id: string;
   description: string;
   position: number;
+  uri: string;
 }
-
-const ELEMENT_DATA: VideoBase[] = [
-  {position: 1, title: 'Thingy', imdb_id: 'Hydrogen', description: 'H'},
-  {position: 2, title: 'Thingy', imdb_id: 'Helium', description: 'He'},
-  {position: 3, title: 'Thingy', imdb_id: 'Lithium', description: 'Li'},
-  {position: 4, title: 'Thingy', imdb_id: 'Beryllium', description: 'Be'},
-  {position: 5, title: 'Thingy', imdb_id: 'Boron', description: 'B'},
-  {position: 6, title: 'Thingy', imdb_id: 'Carbon', description: 'C'},
-  {position: 7, title: 'Thingy', imdb_id: 'Nitrogen', description: 'N'},
-  {position: 8, title: 'Thingy', imdb_id: 'Oxygen', description: 'O'},
-  {position: 9, title: 'Thingy', imdb_id: 'Fluorine', description: 'F'},
-  {position: 10, title: 'Thingy', imdb_id: 'Neon', description: 'Ne'},
-];
 
 @Component({
   selector: 'app-movie-table',
@@ -32,7 +20,7 @@ const ELEMENT_DATA: VideoBase[] = [
 })
 export class MovieTableComponent implements OnInit {
   displayedColumns: string[] = ['select', 'position', 'title', 'imdb_id', 'description', 'star'];
-  dataSource = new MatTableDataSource(ELEMENT_DATA);
+  dataSource = new MatTableDataSource();
   selection = new SelectionModel<VideoBase>(true, []);
 
   constructor(
@@ -41,9 +29,7 @@ export class MovieTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.movieService.read().subscribe(res => {
-      console.log(res);
-    });
+    this.refresh();
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -57,7 +43,7 @@ export class MovieTableComponent implements OnInit {
   masterToggle() {
     this.isAllSelected() ?
         this.selection.clear() :
-        this.dataSource.data.forEach(row => this.selection.select(row));
+        this.dataSource.data.forEach((row: VideoBase) => this.selection.select(row));
   }
 
   /** The label for the checkbox on the passed row */
@@ -73,6 +59,14 @@ export class MovieTableComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
+  refresh() {
+    this.movieService.read().subscribe((res: VideoBase[]) => {
+      this.dataSource = new MatTableDataSource(
+        res.map((v: VideoBase, idx: number) => ({...v, position: idx + 1}))
+      );
+    });
+  }
+
   openDialog(element): void {
     if (element == null) {
       element = {};
@@ -82,9 +76,21 @@ export class MovieTableComponent implements OnInit {
       data: element
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+    dialogRef.afterClosed().subscribe((result: VideoBase) => {
       console.log(result);
+      console.log('The dialog was closed');
+      if (!result) {
+        return;
+      }
+      if (result.uri) {
+        this.movieService.update(result.uri, result).subscribe(res => {
+          console.log('updated');
+        });
+      } else {
+        this.movieService.create(result).subscribe(res => {
+          this.refresh();
+        });
+      }
     });
   }
 
