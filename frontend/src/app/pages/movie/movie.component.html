@@ -1,20 +1,24 @@
-<h3>{{movie.title}}</h3>
+<mat-toolbar>
+    <mat-toolbar-row>
+      <span>{{movie?.title}}</span>
+      <span class="example-spacer"></span>
+      <button mat-mini-fab color="primary" (click)="save()">
+        <mat-icon>save</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-<div class="example-container">
+<div *ngIf="movie" class="container-fluid">
     <mat-form-field appearance="fill">
-      <mat-label>Input</mat-label>
-      <input matInput>
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="movie.title">
     </mat-form-field>
-    <br>
     <mat-form-field appearance="fill">
-      <mat-label>Select</mat-label>
-      <mat-select>
-        <mat-option value="option">Option</mat-option>
-      </mat-select>
+        <mat-label>IMDB ID</mat-label>
+        <input matInput [(ngModel)]="movie.imdb_id">
     </mat-form-field>
-    <br>
     <mat-form-field appearance="fill">
-      <mat-label>Textarea</mat-label>
-      <textarea matInput></textarea>
+        <mat-label>Description</mat-label>
+        <input matInput [(ngModel)]="movie.description">
     </mat-form-field>
-  </div>
+</div>

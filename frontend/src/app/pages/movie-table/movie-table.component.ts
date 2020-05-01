@@ -11,7 +11,7 @@ export interface VideoBase {
   imdb_id: string;
   description: string;
   position: number;
-  uri: string;
+  id: string;
 }
 
 @Component({
@@ -84,8 +84,8 @@ export class MovieTableComponent implements OnInit {
       if (!result) {
         return;
       }
-      if (result.uri) {
-        this.movieService.update(result.uri, result).subscribe(res => {
+      if (result.id) {
+        this.movieService.update(result.id, result).subscribe(res => {
           console.log('updated');
         });
       } else {
@@ -97,7 +97,7 @@ export class MovieTableComponent implements OnInit {
   }
 
   viewSingle(element: VideoBase): void {
-    this.router.navigate(['/movies/' + element.uri]);
+    this.router.navigate(['/movies/' + element.id]);
   }
 
 }

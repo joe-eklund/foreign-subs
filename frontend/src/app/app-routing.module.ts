@@ -5,7 +5,7 @@ import { MovieComponent } from './pages/movie/movie.component';
 
 
 const routes: Routes = [
-  { path: 'movies/:uri', component: MovieComponent },
+  { path: 'movies/:id', component: MovieComponent },
   { path: '**', component: MovieTableComponent },
 ];
 

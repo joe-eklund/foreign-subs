@@ -20,9 +20,14 @@ export class MovieComponent implements OnInit {
   ngOnInit() {
     this.activeRoute.params.subscribe(params => {
       this.moviesService.read_one(params.id).subscribe(res => {
-        console.log(res);
         this.movie = res;
       });
+    });
+  }
+
+  save() {
+    this.moviesService.update(this.movie.id, this.movie).subscribe(res => {
+      console.log(res);
     });
   }
 
