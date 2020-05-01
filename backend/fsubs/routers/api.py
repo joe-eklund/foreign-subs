@@ -4,7 +4,7 @@ from typing import List
 import addict as ad
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 
@@ -65,7 +65,11 @@ async def get_movie(uri: str):
 
     **param uri** - The uri of the movie to get.
     """
-    return MOVIE_DAO.read(movie_id=uri)
+    movie = MOVIE_DAO.read(movie_id=uri)
+    if movie:
+        return movie
+    else:
+        raise HTTPException(status_code=404, detail="Movie not found")
 
 
 @app.get("/movies", response_model=List[VideoBaseInDB], tags=['movies'])
