@@ -27,7 +27,7 @@
   </mat-chip-list>
   <mat-form-field>
     <mat-label>Timestamps</mat-label>
-    <input matInput (keyup.enter)="addTimeStamp($event);tempTimeStamp=''" [(ngModel)]="tempTimeStamp">
+    <input matInput (keyup.enter)="addTimeStamp($event.target);tempTimeStamp=''" [(ngModel)]="tempTimeStamp">
   </mat-form-field>
   <mat-form-field>
     <mat-label>Description</mat-label>

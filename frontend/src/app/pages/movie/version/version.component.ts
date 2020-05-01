@@ -26,11 +26,11 @@ export class VersionComponent {
     this.dialogRef.close();
   }
 
-  addTimeStamp(data: KeyboardEvent) {
+  addTimeStamp(data: any) {
     if (this.data.timestamps) {
-      return this.data.timestamps.push(data.target.value);
+      return this.data.timestamps.push(data.value);
     }
-    this.data.timestamps = [data.target.value];
+    this.data.timestamps = [data.value];
   }
 
   removeTimeStamp(idx) {
