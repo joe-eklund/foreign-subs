@@ -11,7 +11,7 @@ import { NavModule } from './core/common/nav/nav.module';
 import { AppService } from './core/services/app.service';
 import { AuthInterceptor } from './core/services/interceptors/auth.service';
 import { MovieTableModule } from './pages/movie-table/movie-table.module';
-import { MaterialModule } from './material/material.module';
+import { MovieModule } from './pages/movie/movie.module';
 
 @NgModule({
   declarations: [
@@ -22,11 +22,11 @@ import { MaterialModule } from './material/material.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MaterialModule,
     FooterModule,
     LoaderModule,
     NavModule,
     MovieTableModule,
+    MovieModule,
   ],
   providers: [
     AppService,

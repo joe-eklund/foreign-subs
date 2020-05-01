@@ -2,6 +2,8 @@
 from datetime import datetime, timezone
 from typing import List
 import addict as ad
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
@@ -9,6 +11,8 @@ from pymongo import MongoClient
 from fsubs.config.config import config
 from fsubs.crud.movie import MovieDAO
 from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance
+
+LOGGER = logging.getLogger(__name__)
 
 origins = [
     "http://localhost:4200",

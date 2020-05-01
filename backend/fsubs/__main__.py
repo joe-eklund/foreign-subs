@@ -1,7 +1,7 @@
 """Run fsubs app."""
 
-from enum import Enum
 import logging
+from enum import Enum
 from pathlib import Path
 
 import typer
@@ -10,7 +10,7 @@ import uvicorn
 from fsubs.config.config import config
 
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 cli = typer.Typer(add_completion=False)
 
@@ -32,17 +32,17 @@ def main(
         LogLevel.warning.value, "--log-level", "-l", show_default=True
     ),
     reload: bool = typer.Option(
-        False, "--reload", "-r", help="Auto reload on code changes.", show_default=True)
+        False, "--reload", "-r", help="Auto reload on code changes.", show_default=True),
 ):
     """Run fsubs backend."""
-    logging.basicConfig(level=log_level.upper())
-    logger.debug(f"Loading config from {cfg}.")
+    LOGGER.debug(f"Loading config from {cfg}.")
     config.read(cfg)
     uvicorn.run(
         app='fsubs.routers.api:app',
         host=config["app"]["bind_addr"],
         port=config["app"].getint("bind_port"),
         reload=reload,
+        log_level=log_level,
     )
 
 

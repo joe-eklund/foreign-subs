@@ -4,6 +4,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { ModifyMovieComponent } from './modify-movie/modify-movie.component';
 import { MoviesService } from 'src/app/core/services/movies.service';
+import { Router } from '@angular/router';
 
 export interface VideoBase {
   title: string;
@@ -26,6 +27,7 @@ export class MovieTableComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private movieService: MoviesService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -92,6 +94,10 @@ export class MovieTableComponent implements OnInit {
         });
       }
     });
+  }
+
+  viewSingle(element: VideoBase): void {
+    this.router.navigate(['/movies/' + element.uri]);
   }
 
 }
