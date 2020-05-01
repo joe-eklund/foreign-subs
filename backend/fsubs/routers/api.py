@@ -1,13 +1,13 @@
 """REST API functions."""
 from datetime import datetime, timezone
-
+from typing import List
 import addict as ad
 from fastapi import FastAPI
 from pymongo import MongoClient
 
 from fsubs.config.config import config
 from fsubs.crud.movie import MovieDAO
-from fsubs.models.video import VideoBase, VideoInstance
+from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance
 
 app = FastAPI()
 
@@ -34,14 +34,14 @@ async def create_movie(movie: VideoBase):
     movie_to_store = ad.Dict(movie.dict())
 
     # Set metadata
-    movie_to_store.Metadata.date_created = datetime.now(timezone.utc)
-    movie_to_store.Metadata.created_by = user
-    movie_to_store.Metadata.last_modified = datetime.now(timezone.utc)
-    movie_to_store.Metadata.modified_by = user
+    movie_to_store.metadata.date_created = datetime.now(timezone.utc)
+    movie_to_store.metadata.created_by = user
+    movie_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    movie_to_store.metadata.modified_by = user
     return str(MOVIE_DAO.create(movie=movie_to_store.to_dict()))
 
 
-@app.get("/movies/{uri}", tags=['movies'])
+@app.get("/movies/{uri}", response_model=VideoBaseInDB, tags=['movies'])
 async def get_movie(uri: str):
     """
     Get a movie.
@@ -51,8 +51,8 @@ async def get_movie(uri: str):
     return MOVIE_DAO.read(movie_id=uri)
 
 
-@app.get("/movies", tags=['movies'])
-async def get_movies(start: int = 0, page_length: int = 2):
+@app.get("/movies", response_model=List[VideoBaseInDB], tags=['movies'])
+async def get_movies(start: int = 0, page_length: int = 100):
     """
     Get movies.
 
@@ -62,7 +62,7 @@ async def get_movies(start: int = 0, page_length: int = 2):
     return MOVIE_DAO.read_multi(page_length=page_length)
 
 
-@app.put("/movies/{uri}", tags=['movies'], response_model=str, status_code=201)
+@app.put("/movies/{uri}", tags=['movies'], response_model=VideoBaseInDB, status_code=201)
 async def update_movie(uri: str, movie: VideoBase):
     """
     Update a movie.
@@ -75,9 +75,16 @@ async def update_movie(uri: str, movie: VideoBase):
     movie_to_store = ad.Dict(movie.dict())
 
     # Set metadata
-    movie_to_store.Metadata.last_modified = datetime.now(timezone.utc)
-    movie_to_store.Metadata.modified_by = user
-    return str(MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict()))
+    old_movie = ad.Dict(MOVIE_DAO.read(movie_id=uri))
+
+    movie_to_store.metadata.date_created = old_movie.metadata.date_created
+    movie_to_store.metadata.created_by = old_movie.metadata.created_by
+    movie_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    movie_to_store.metadata.modified_by = user
+
+    MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict())
+
+    return movie_to_store
 
 
 @app.delete("/movies/{uri}", tags=['movies'], status_code=204)

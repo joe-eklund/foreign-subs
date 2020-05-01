@@ -40,8 +40,8 @@ def main(
     uvicorn.run(
         app,
         host=config["app"]["bind_addr"],
-        port=config["app"].getint("bind_port"),
-        reload=True)
+        port=config["app"].getint("bind_port"),)
+        #reload=True)
 
 
 if __name__ == "__main__":
