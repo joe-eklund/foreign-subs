@@ -115,5 +115,17 @@ class MovieDAO():
         for v in movie_versions:
             v['id'] = str(v.pop('_id'))
             versions.append(v)
-        print(versions)
         return versions
+
+    def update_version(self, movie_version_id: str, movie_version) -> VideoInstanceInDB:
+        """
+        Update a movie version.
+
+        :param movie_id: The id of the movie version to update.
+        :param movie_version: The movie version data to update with.
+        """
+        LOGGER.debug(f'Updating movie version with uri: <{movie_version_id}> and movie_version: '
+                     f'<{movie_version}>.')
+        self.client.foreign_subs.movie_versions.update(
+            {'_id': ObjectId(movie_version_id)},
+            {'$set': movie_version})

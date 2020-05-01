@@ -161,7 +161,7 @@ async def get_versions(uri: ObjectIdStr):
 
     **uri** - The uri of the version of the movie to get.
     """
-    LOGGER.debug(f'Getting movie version: {uri}.')
+    LOGGER.debug(f'Getting movie version: <{uri}>.')
     movie_version = MOVIE_DAO.read_version(movie_version_id=uri)
     if not movie_version:
         raise HTTPException(status_code=404, detail="Movie version not found.")
@@ -181,6 +181,7 @@ async def get_movie_version(uri: ObjectIdStr):
 
 
 @app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
+@app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=201)
 async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     """
     Update a movie version.
@@ -189,8 +190,24 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
 
     **movie_version** - The movie version data to update the movie version with.
     """
-    return "Not implemented yet."
+    user = 'admin'  # change to real user with auth later
+    LOGGER.debug(f'Updating movie version uri: <{uri}> with movie_version: <{movie_version}> and '
+                 f'user: <{user}>.')
 
+    movie_version_to_store = ad.Dict(movie_version.dict())
+
+    # Set metadata
+    old_movie_version = ad.Dict(MOVIE_DAO.read_version(movie_version_id=uri))
+
+    movie_version_to_store.metadata.date_created = old_movie_version.metadata.date_created
+    movie_version_to_store.metadata.created_by = old_movie_version.metadata.created_by
+    movie_version_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    movie_version_to_store.metadata.modified_by = user
+
+    MOVIE_DAO.update_version(movie_version_id=uri, movie_version=movie_version_to_store.to_dict())
+
+    movie_version_to_store.id = uri
+    return movie_version_to_store
 
 @app.delete("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
 async def delete_movie_version(uri: ObjectIdStr):
