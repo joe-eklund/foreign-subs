@@ -1,12 +1,11 @@
 """CRUD functions for movies."""
 
 import logging
-
 from typing import Any, Dict, List
 
-from fsubs.models.video import VideoBaseInDB
-
 from bson.objectid import ObjectId
+
+from fsubs.models.video import VideoBaseInDB
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +38,8 @@ class MovieDAO():
         :returns: Dict representing the movie.
         """
         movie = self.client.foreign_subs.movies.find_one({'_id': ObjectId(movie_id)})
-        movie['id'] = str(movie['_id'])
+        if movie:
+            movie['id'] = str(movie['_id'])
         return movie
 
     def read_multi(self, page_length) -> List[Dict[str, Any]]:
