@@ -155,7 +155,7 @@ async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
 
 
 @app.get("/movies/versions/{uri}", tags=['movie versions'], status_code=200)
-async def get_versions(uri: ObjectIdStr):
+async def get_movie_version(uri: ObjectIdStr):
     """
     Get a movie version.
 
@@ -169,7 +169,7 @@ async def get_versions(uri: ObjectIdStr):
 
 
 @app.get("/movies/{uri}/versions", tags=['movie versions'], status_code=200)
-async def get_movie_version(uri: ObjectIdStr):
+async def get_movie_versions(uri: ObjectIdStr):
     """
     Get all of the versions for a movie.
 
