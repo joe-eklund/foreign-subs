@@ -15,9 +15,11 @@ import { SelectionModel } from '@angular/cdk/collections';
 export class MovieComponent implements OnInit {
 
   movie: VideoBase;
-  displayedColumns: string[] = ['position', 'title', 'imdb_id', 'description', 'star'];
-  dataSource = new MatTableDataSource<VideoBase>();
-  selection = new SelectionModel<VideoBase>(true, []);
+  displayedColumns: string[] = [
+    'position', 'disc_type', 'sub_type', 'timestamps', 'track', 'star'
+  ];
+  dataSource = new MatTableDataSource<Version>();
+  selection = new SelectionModel<Version>(true, []);
 
   constructor(
     public dialog: MatDialog,
@@ -29,9 +31,9 @@ export class MovieComponent implements OnInit {
     this.activeRoute.params.subscribe(params => {
       this.moviesService.read_one(params.id).subscribe(res => {
         this.movie = res;
+        this.refresh();
       });
     });
-    this.refresh();
   }
 
   save() {
@@ -43,7 +45,7 @@ export class MovieComponent implements OnInit {
   addVersion(movieId): void {
     const dialogRef = this.dialog.open(VersionComponent, {
       width: '250px',
-      data: {video_base_id: movieId}
+      data: {}
     });
 
     dialogRef.afterClosed().subscribe((result: Version) => {
@@ -56,7 +58,7 @@ export class MovieComponent implements OnInit {
           console.log('updated');
         });
       } else {
-        this.moviesService.create_version(result.video_base_id, result).subscribe(res => {
+        this.moviesService.create_version(movieId, result).subscribe(res => {
           this.refresh();
         });
       }
@@ -69,9 +71,9 @@ export class MovieComponent implements OnInit {
   }
 
   refresh() {
-    this.moviesService.read().subscribe((res: VideoBase[]) => {
+    this.moviesService.read_versions(this.movie.id).subscribe((res: Version[]) => {
       this.dataSource = new MatTableDataSource(
-        res.map((v: VideoBase, idx: number) => ({...v, position: idx + 1}))
+        res.map((v: Version, idx: number) => ({...v, position: idx + 1}))
       );
     });
   }

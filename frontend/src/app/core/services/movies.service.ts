@@ -31,6 +31,10 @@ export class MoviesService {
     return this.appService.delete('movies/' + id);
   }
 
+  read_versions(movieId): Observable<any> {
+    return this.appService.get('movies/' + movieId + '/versions');
+  }
+
   read_one_version(id): Observable<any> {
     return this.appService.get('movies/version');
   }

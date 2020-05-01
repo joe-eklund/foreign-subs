@@ -2,7 +2,23 @@
 <div mat-dialog-content>
   <mat-form-field>
     <mat-label>Disc Type</mat-label>
-    <input matInput [(ngModel)]="data.disc_type">
+    <select matNativeControl [(ngModel)]="data.disc_type">
+      <option value="BD">Blu-Ray Disc</option>
+      <option value="3DBD">3D Blu-Ray Disc</option>
+      <option value="DVD">DVD</option>
+      <option value="UHD">UHD</option>
+      <option value="WEB-DL">WEB-DL</option>
+      <option value="UNKOWN">Unknown</option>
+    </select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Sub Type</mat-label>
+    <select matNativeControl [(ngModel)]="data.sub_type">
+      <option value="Separate">Separate</option>
+      <option value="Hardcoded">Hardcoded</option>
+      <option value="Forced">Forced</option>
+      <option value="Unknown">Unknown</option>
+    </select>
   </mat-form-field>
   <mat-chip-list>
     <mat-chip *ngFor="let stamp of data.timestamps;let i = index;">

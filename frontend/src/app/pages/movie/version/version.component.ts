@@ -2,12 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export interface Version {
-  video_base_id: string;
   disc_type: string;
   timestamps: string[];
   description: string;
   track: number;
   id: string;
+  sub_type: string;
 }
 
 @Component({

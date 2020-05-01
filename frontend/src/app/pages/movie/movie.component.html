@@ -51,21 +51,27 @@
       </ng-container>
     
       <!-- Name Column -->
-      <ng-container matColumnDef="title">
-        <th mat-header-cell *matHeaderCellDef> Title </th>
-        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+      <ng-container matColumnDef="disc_type">
+        <th mat-header-cell *matHeaderCellDef> Disc Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.disc_type}} </td>
       </ng-container>
     
       <!-- Weight Column -->
-      <ng-container matColumnDef="imdb_id">
-        <th mat-header-cell *matHeaderCellDef> IMDB ID </th>
-        <td mat-cell *matCellDef="let element"> {{element.imdb_id}} </td>
+      <ng-container matColumnDef="sub_type">
+        <th mat-header-cell *matHeaderCellDef> Subtitle Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.sub_type}} </td>
       </ng-container>
     
       <!-- Symbol Column -->
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef> Description </th>
-        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+      <ng-container matColumnDef="timestamps">
+        <th mat-header-cell *matHeaderCellDef> Timestamps </th>
+        <td mat-cell *matCellDef="let element"> {{element.timestamps}} </td>
+      </ng-container>
+    
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="track">
+        <th mat-header-cell *matHeaderCellDef> Track </th>
+        <td mat-cell *matCellDef="let element"> {{element.track}} </td>
       </ng-container>
   
       <!-- Star Column -->
