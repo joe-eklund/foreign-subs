@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { ModifyMovieComponent } from './modify-movie/modify-movie.component';
+import { MoviesService } from 'src/app/core/services/movies.service';
 
 export interface PeriodicElement {
   name: string;
@@ -29,7 +30,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
   templateUrl: './movie-table.component.html',
   styleUrls: ['./movie-table.component.scss']
 })
-export class MovieTableComponent {
+export class MovieTableComponent implements OnInit {
   displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol', 'star'];
   dataSource = new MatTableDataSource(ELEMENT_DATA);
   selection = new SelectionModel<PeriodicElement>(true, []);
@@ -37,7 +38,16 @@ export class MovieTableComponent {
   name: string;
   animal: string;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(
+    public dialog: MatDialog,
+    private movieService: MoviesService,
+  ) {}
+
+  ngOnInit() {
+    // this.movieService.read().subscribe(res => {
+    //   console.log(res);
+    // });
+  }
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
