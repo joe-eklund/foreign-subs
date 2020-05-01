@@ -31,6 +31,6 @@ class MovieDAO():
         """Update a movie."""
         return self.client.foreign_subs.movies.update({'_id': ObjectId(movie_id)}, {'$set': movie})
 
-    def delete(self):
+    def delete(self, movie_id: str):
         """Delete a movie."""
-        raise NotImplementedError
+        self.client.foreign_subs.movies.delete_one({'_id': ObjectId(movie_id)})
