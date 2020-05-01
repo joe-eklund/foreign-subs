@@ -1,12 +1,11 @@
 """CRUD functions for movies."""
 
 import logging
-
 from typing import Any, Dict, List
 
-from fsubs.models.video import VideoBaseInDB
-
 from bson.objectid import ObjectId
+
+from fsubs.models.video import VideoBaseInDB
 
 LOGGER = logging.getLogger(__name__)
 

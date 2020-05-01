@@ -66,10 +66,9 @@ async def get_movie(uri: str):
     **param uri** - The uri of the movie to get.
     """
     movie = MOVIE_DAO.read(movie_id=uri)
-    if movie:
-        return movie
-    else:
+    if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
+    return movie
 
 
 @app.get("/movies", response_model=List[VideoBaseInDB], tags=['movies'])
