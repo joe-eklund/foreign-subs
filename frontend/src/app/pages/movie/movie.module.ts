@@ -9,11 +9,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { VersionComponent } from './version/version.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 
 @NgModule({
-  declarations: [MovieComponent],
+  declarations: [MovieComponent, VersionComponent],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -25,7 +29,11 @@ import { MatButtonModule } from '@angular/material/button';
     MatToolbarModule,
     FormsModule,
     ReactiveFormsModule,
+    MatDialogModule,
+    MatTableModule,
+    MatMenuModule,
   ],
-  exports: [MovieComponent]
+  exports: [MovieComponent],
+  entryComponents: [VersionComponent]
 })
 export class MovieModule { }

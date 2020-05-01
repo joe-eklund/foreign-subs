@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>Version</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Disc Type</mat-label>
+    <input matInput [(ngModel)]="data.disc_type">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Timestamps</mat-label>
+    <input matInput [(ngModel)]="data.imdb_id">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <input matInput [(ngModel)]="data.description">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Track</mat-label>
+    <input matInput number [(ngModel)]="data.track">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Save</button>
+</div>

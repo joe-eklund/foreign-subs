@@ -15,19 +15,35 @@ export class MoviesService {
     return this.appService.get('movies');
   }
 
-  read_one(uri: string): Observable<any> {
-    return this.appService.get('movies/' + uri);
+  read_one(id: string): Observable<any> {
+    return this.appService.get('movies/' + id);
   }
 
   create(movie: any): Observable<any> {
     return this.appService.post('movies', movie);
   }
 
-  update(uri: string, data: any): Observable<any> {
-    return this.appService.put('movies/' + uri, data);
+  update(id: string, movie: any): Observable<any> {
+    return this.appService.put('movies/' + id, movie);
   }
 
-  delete(uri: string): Observable<any> {
-    return this.appService.delete('movies/' + uri);
+  delete(id: string): Observable<any> {
+    return this.appService.delete('movies/' + id);
+  }
+
+  read_one_version(id): Observable<any> {
+    return this.appService.get('movies/version');
+  }
+
+  create_version(movieId: string, version: any): Observable<any> {
+    return this.appService.post('movies/' + movieId + '/versions', version);
+  }
+
+  update_version(id: string, version: any): Observable<any> {
+    return this.appService.put('movies/versions/' + id, version);
+  }
+
+  delete_version(id: string): Observable<any> {
+    return this.appService.delete('movies/versions/' + id);
   }
 }
