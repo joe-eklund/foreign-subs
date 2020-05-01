@@ -31,12 +31,9 @@ const ELEMENT_DATA: VideoBase[] = [
   styleUrls: ['./movie-table.component.scss']
 })
 export class MovieTableComponent implements OnInit {
-  displayedColumns: string[] = ['select', 'position', 'name', 'weight', 'symbol', 'star'];
+  displayedColumns: string[] = ['select', 'position', 'title', 'imdb_id', 'description', 'star'];
   dataSource = new MatTableDataSource(ELEMENT_DATA);
   selection = new SelectionModel<VideoBase>(true, []);
-
-  name: string;
-  animal: string;
 
   constructor(
     public dialog: MatDialog,
@@ -87,7 +84,7 @@ export class MovieTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.animal = result;
+      console.log(result);
     });
   }
 
