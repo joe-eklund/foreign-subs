@@ -1,0 +1,6 @@
+[flake8]
+max-line-length=99
+extend-ignore=D301
+per-file-ignores=
+    __init__.py:F401
+    darcpy/api_v2/main.py:E402,F403,F401

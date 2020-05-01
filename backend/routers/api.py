@@ -61,3 +61,7 @@ async def update_movie(uri: str, movie: VideoBase):
 
 
 # DELETE
+@app.delete("/movies/{uri}")
+async def delete_movie(uri):
+    """Get a movie."""
+    return MOVIE_DAO.delete(movie_id=uri)
