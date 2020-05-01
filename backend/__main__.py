@@ -13,6 +13,8 @@ from backend.config.config import config
 
 logger = logging.getLogger(__name__)
 
+cli = typer.Typer(add_completion=False)
+
 
 class LogLevel(str, Enum):
     """Available log levels."""
@@ -24,6 +26,7 @@ class LogLevel(str, Enum):
     critical = "critical"
 
 
+@cli.command()
 def main(
     cfg: Path = typer.Option("", "--config", "-c", help="Load a custom config file."),
     log_level: LogLevel = typer.Option(
@@ -38,4 +41,4 @@ def main(
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    cli()
