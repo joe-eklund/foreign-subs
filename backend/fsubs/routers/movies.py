@@ -164,13 +164,24 @@ async def get_movie_version(uri: ObjectIdStr):
             status_code=200)
 async def get_movie_versions(uri: ObjectIdStr):
     """
-    Get all of the versions for a movie.
+    Get **all** of the versions for a movie.
 
-    **uri** - The uri of the version of the movie to get.
+    **uri** - The uri of movie to get all versions.
     """
-    LOGGER.debug(f'Getting movie version: {uri}.')
+    LOGGER.debug(f'Getting movie versions for movie: {uri}.')
     movie_versions = MOVIE_DAO.read_movie_versions(movie_id=uri)
     return movie_versions
+
+
+@router.delete("/{uri}/versions", tags=['movie versions'], status_code=204)
+async def delete_movie_versions(uri: ObjectIdStr):
+    """
+    Delete **all** movie versions for a movie.
+
+    **uri** - The uri of the movie to delete all versions for.
+    """
+    LOGGER.debug(f'Deleting movie versions for movie: <{uri}>.')
+    MOVIE_DAO.delete_movie_versions(movie_id=uri)
 
 
 @router.put("/versions/{uri}",

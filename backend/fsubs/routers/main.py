@@ -14,10 +14,11 @@ origins = [
 
 openapi_prefix = ''  # Set me to run swagger ot a base url
 
-LOGGER.info(f'Building FastAPI app with base url: {openapi_prefix}.')
+LOGGER.info(f'Building FastAPI app with base url: <{openapi_prefix}>.')
 app = FastAPI(openapi_prefix=openapi_prefix)
 
-LOGGER.info('Setting FastAPI middleware.')
+LOGGER.info('Setting up FastAPI middleware.')
+LOGGER.debug(f'Using origins: <{origins}>.')
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -26,5 +27,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+LOGGER.info('Loading routers.')
 app.include_router(movies.router, prefix="/movies")
