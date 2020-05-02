@@ -101,14 +101,14 @@ class MovieDAO():
             movie_version['id'] = str(movie_version.pop('_id'))
         return movie_version
 
-    def read_movie_version(self, movie_id: str) -> Dict[str, Any]:
+    def read_movie_versions(self, movie_id: str) -> Dict[str, Any]:
         """
         Read all the versions of a movie.
 
         :param movie_version_id: The id of the movie to read.
         :returns: Dict representing the movie.
         """
-        LOGGER.debug(f'Reading movie version: <{movie_id}>.')
+        LOGGER.debug(f'Reading movie versions for: <{movie_id}>.')
         movie_versions = self.client.foreign_subs.movie_versions.find(
             {'video_base_id': str(movie_id)})
         versions = []
@@ -129,3 +129,21 @@ class MovieDAO():
         self.client.foreign_subs.movie_versions.update(
             {'_id': ObjectId(movie_version_id)},
             {'$set': movie_version})
+
+    def delete_version(self, movie_version_id: str):
+        """
+        Delete a movie version.
+
+        :param movie_id: The id of the movie to delete.
+        """
+        LOGGER.debug(f'Deleting movie version: <{movie_version_id}>.')
+        self.client.foreign_subs.movie_versions.delete_one({'_id': ObjectId(movie_version_id)})
+
+    def delete_movie_versions(self, movie_id: str):
+        """
+        Delete all the versions of a movie.
+
+        :param movie_version_id: The id of the movie to delete with.
+        """
+        LOGGER.debug(f'Deleting movie version for: <{movie_id}>.')
+        self.client.foreign_subs.movie_versions.delete_many({'video_base_id': str(movie_id)})

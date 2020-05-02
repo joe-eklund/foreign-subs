@@ -121,7 +121,8 @@ async def delete_movie(uri: ObjectIdStr):
     **uri** - The uri of the movie to delete.
     """
     LOGGER.debug(f'Deleting movie: <{uri}>.')
-    return MOVIE_DAO.delete(movie_id=uri)
+    MOVIE_DAO.delete(movie_id=uri)
+    MOVIE_DAO.delete_movie_versions(movie_id=uri)
 
 
 # /movies/versions endpoints
@@ -176,7 +177,7 @@ async def get_movie_versions(uri: ObjectIdStr):
     **uri** - The uri of the version of the movie to get.
     """
     LOGGER.debug(f'Getting movie version: {uri}.')
-    movie_versions = MOVIE_DAO.read_movie_version(movie_id=uri)
+    movie_versions = MOVIE_DAO.read_movie_versions(movie_id=uri)
     return movie_versions
 
 
@@ -209,11 +210,13 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     movie_version_to_store.id = uri
     return movie_version_to_store
 
-@app.delete("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
+
+@app.delete("/movies/versions/{uri}", tags=['movie versions'], status_code=204)
 async def delete_movie_version(uri: ObjectIdStr):
     """
     Delete a movie version.
 
     **uri** - The uri of the movie version to delete.
     """
-    return "Not implemented yet."
+    LOGGER.debug(f'Deleting movie version: <{uri}>.')
+    MOVIE_DAO.delete_version(movie_version_id=uri)
