@@ -7,7 +7,7 @@ from pydantic import BaseModel, validator
 
 
 class DiscType(str, Enum):
-    """The kind of disc for the ``VideoInstance``."""
+    """The kind of disc for the `VideoInstance`."""
 
     bd = 'BD'
     bd3d = 'BD3D'
@@ -56,7 +56,7 @@ class BluRegion(str, Enum):
 
 class SubType(str, Enum):
     """
-    What kind of type the subtitles are.
+    What type the subtitles are.
 
     Separate means the subs are on a separate track. Hardocded means the subs are burned into the
     video. Forced means there is a separate track that has been flagged forced.
@@ -69,7 +69,17 @@ class SubType(str, Enum):
 
 
 class Metadata(BaseModel):
-    """Metadata info."""
+    """
+    Metadata info.
+
+    **date_created** - The date and time of creation of the item.
+
+    **created_by** - Which user created the item.
+
+    **last_modified** - The date and time the item was last modified.
+
+    **modified_by** - Which user was the last to modify the item.
+    """
 
     date_created: datetime = datetime.now()
     created_by: str = None
@@ -83,6 +93,18 @@ class VideoInstance(BaseModel):
 
     For example, the extended edition of a video may be different than the theatrical, even though
     they are the same movie.
+
+    **disc_type** - What type of disc the instance is from (e.g. `DVD`)
+
+    **region** - Which region the source is from (e.g. `Region 0` or `A`)
+
+    **timestamps** - A list of timestamps as strings. A timestamp is of the form: `TODO`.
+
+    **sub_type** - What type the subtitles are (e.g. `Hardcoded`).
+
+    **description** - The description of the video instance.
+
+    **track** - Which track (if applicable) the subtitle is.
     """
 
     disc_type: DiscType = DiscType['unknown']
@@ -100,7 +122,13 @@ class VideoInstance(BaseModel):
 
 
 class VideoInstanceInDB(VideoInstance):
-    """The VideoInstance stored in the db."""
+    """
+    The VideoInstance stored in the db.
+
+    **id** - The id of the item in the database.
+
+    **video_base_id** - The id of the `VideoBaseInDB` to associate the `VideoInstanceInDB` with.
+    """
 
     id: str
     video_base_id: str
@@ -108,15 +136,32 @@ class VideoInstanceInDB(VideoInstance):
 
 
 class VideoBase(BaseModel):
-    """Base video class."""
+    """
+    Base video class. Used to represent a movie or single TV episode.
+
+    **title** - The title of the video.
+
+    **imdb_id** - The IMDB id of the video.
+
+    **description** - Description of the video.
+
+    **no_subs** - Set to `True` if the video has been verified to have no subtitles.
+    """
 
     title: str
     imdb_id: str
     description: str = None
+    no_subs: bool = False
 
 
 class VideoBaseInDB(VideoBase):
-    """Base video class stored in db."""
+    """
+    The VideoBase class stored in db.
+    
+    **id** - The id of the item in the database.
+
+    **metadata** - The Metadata object to be associated with the item.
+    """
 
     id: str
     metadata: Metadata = Metadata()

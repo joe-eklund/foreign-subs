@@ -38,7 +38,7 @@ def main(
     LOGGER.debug(f"Loading config from {cfg}.")
     config.read(cfg)
     uvicorn.run(
-        app='fsubs.routers.api:app',
+        app='fsubs.routers.main:app',
         host=config["app"]["bind_addr"],
         port=config["app"].getint("bind_port"),
         reload=reload,

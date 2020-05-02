@@ -4,30 +4,16 @@ from typing import List
 import addict as ad
 import logging
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 
 from fsubs.config.config import config
 from fsubs.crud.movie import MovieDAO
 from fsubs.models.misc import ObjectIdStr
-from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance
+from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance, VideoInstanceInDB
 
 LOGGER = logging.getLogger(__name__)
-
-origins = [
-    "http://localhost:4200",
-]
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 client = MongoClient(
     host=config["db"]["hostname"],
@@ -41,7 +27,7 @@ MOVIE_DAO = MovieDAO(client=client)
 
 # /movies endpoints
 
-@app.post("/movies", tags=['movies'], response_model=str, status_code=201)
+@router.post("", tags=['movies'], response_model=str, status_code=201)
 async def create_movie(movie: VideoBase):
     """
     Create a movie.
@@ -60,7 +46,7 @@ async def create_movie(movie: VideoBase):
     return str(MOVIE_DAO.create(movie=movie_to_store.to_dict()))
 
 
-@app.get("/movies/{uri}", response_model=VideoBaseInDB, tags=['movies'])
+@router.get("/{uri}", response_model=VideoBaseInDB, tags=['movies'])
 async def get_movie(uri: ObjectIdStr):
     """
     Get a movie.
@@ -74,7 +60,7 @@ async def get_movie(uri: ObjectIdStr):
     return movie
 
 
-@app.get("/movies", response_model=List[VideoBaseInDB], tags=['movies'])
+@router.get("", response_model=List[VideoBaseInDB], tags=['movies'])
 async def get_movies(start: int = 0, page_length: int = 100):
     """
     Get movies.
@@ -86,7 +72,7 @@ async def get_movies(start: int = 0, page_length: int = 100):
     return MOVIE_DAO.read_multi(page_length=page_length)
 
 
-@app.put("/movies/{uri}", tags=['movies'], response_model=VideoBaseInDB, status_code=201)
+@router.put("/{uri}", tags=['movies'], response_model=VideoBaseInDB, status_code=201)
 async def update_movie(uri: ObjectIdStr, movie: VideoBase):
     """
     Update a movie.
@@ -113,7 +99,7 @@ async def update_movie(uri: ObjectIdStr, movie: VideoBase):
     return movie_to_store
 
 
-@app.delete("/movies/{uri}", tags=['movies'], status_code=204)
+@router.delete("/{uri}", tags=['movies'], status_code=204)
 async def delete_movie(uri: ObjectIdStr):
     """
     Delete a movie.
@@ -127,7 +113,7 @@ async def delete_movie(uri: ObjectIdStr):
 
 # /movies/versions endpoints
 
-@app.post("/movies/{uri}/versions", tags=['movie versions'], status_code=201)
+@router.post("/{uri}/versions", tags=['movie versions'], status_code=201)
 async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     """
     Create a new movie version.
@@ -155,7 +141,10 @@ async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     return str(MOVIE_DAO.create_version(movie_version=movie_version_to_store.to_dict()))
 
 
-@app.get("/movies/versions/{uri}", tags=['movie versions'], status_code=200)
+@router.get("/versions/{uri}", 
+            response_model=VideoInstanceInDB,
+            tags=['movie versions'],
+            status_code=200)
 async def get_movie_version(uri: ObjectIdStr):
     """
     Get a movie version.
@@ -169,7 +158,10 @@ async def get_movie_version(uri: ObjectIdStr):
     return movie_version
 
 
-@app.get("/movies/{uri}/versions", tags=['movie versions'], status_code=200)
+@router.get("/{uri}/versions",
+            response_model=List[VideoInstanceInDB],
+            tags=['movie versions'],
+            status_code=200)
 async def get_movie_versions(uri: ObjectIdStr):
     """
     Get all of the versions for a movie.
@@ -181,8 +173,10 @@ async def get_movie_versions(uri: ObjectIdStr):
     return movie_versions
 
 
-@app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=405)
-@app.put("/movies/versions/{uri}", tags=['movie versions'], status_code=201)
+@router.put("/versions/{uri}",
+            response_model=VideoInstanceInDB,
+            tags=['movie versions'],
+            status_code=201)
 async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     """
     Update a movie version.
@@ -211,7 +205,7 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     return movie_version_to_store
 
 
-@app.delete("/movies/versions/{uri}", tags=['movie versions'], status_code=204)
+@router.delete("/versions/{uri}", tags=['movie versions'], status_code=204)
 async def delete_movie_version(uri: ObjectIdStr):
     """
     Delete a movie version.
