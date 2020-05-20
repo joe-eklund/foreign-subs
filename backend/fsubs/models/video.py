@@ -5,6 +5,8 @@ from typing import List, Union
 
 from pydantic import BaseModel, validator
 
+from fsubs.models.misc import Metadata
+
 
 class DiscType(str, Enum):
     """The kind of disc for the `VideoInstance`."""
@@ -66,25 +68,6 @@ class SubType(str, Enum):
     hardcoded = 'Hardcoded'
     forced = 'Forced'
     unknown = 'Unknown'
-
-
-class Metadata(BaseModel):
-    """
-    Metadata info.
-
-    **date_created** - The date and time of creation of the item.
-
-    **created_by** - Which user created the item.
-
-    **last_modified** - The date and time the item was last modified.
-
-    **modified_by** - Which user was the last to modify the item.
-    """
-
-    date_created: datetime = datetime.now()
-    created_by: str = None
-    last_modified: datetime = None
-    modified_by: str = None
 
 
 class VideoInstance(BaseModel):
@@ -157,7 +140,7 @@ class VideoBase(BaseModel):
 class VideoBaseInDB(VideoBase):
     """
     The VideoBase class stored in db.
-    
+
     **id** - The id of the item in the database.
 
     **metadata** - The Metadata object to be associated with the item.

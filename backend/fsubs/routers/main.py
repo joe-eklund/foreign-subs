@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from fsubs.routers import movies
+from fsubs.routers import movies, tvshows, users
 
 LOGGER = logging.getLogger(__name__)
 
@@ -29,3 +29,5 @@ app.add_middleware(
 
 LOGGER.info('Loading routers.')
 app.include_router(movies.router, prefix="/movies")
+app.include_router(tvshows.router, prefix="/tv_shows")
+app.include_router(users.router, prefix="/users")

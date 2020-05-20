@@ -1,6 +1,8 @@
 """Miscellaneous models."""
+from datetime import datetime, timezone
 
 import bson
+from pydantic import BaseModel
 
 
 class ObjectIdStr(str):
@@ -19,3 +21,22 @@ class ObjectIdStr(str):
         except bson.objectid.InvalidId as e:
             raise ValueError(str(e))
         return str(v)
+
+
+class Metadata(BaseModel):
+    """
+    Metadata info.
+
+    **date_created** - The date and time of creation of the item.
+
+    **created_by** - Which user created the item.
+
+    **last_modified** - The date and time the item was last modified.
+
+    **modified_by** - Which user was the last to modify the item.
+    """
+
+    date_created: datetime = datetime.now(timezone.utc)
+    created_by: str = None
+    last_modified: datetime = None
+    modified_by: str = None

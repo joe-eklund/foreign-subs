@@ -1,5 +1,8 @@
 # App config
-config.ini
+default_reload.ini
+
+# mongo
+docker/mongo
 
 # VS Code
 .vscode

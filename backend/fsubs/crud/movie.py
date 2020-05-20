@@ -25,7 +25,7 @@ class MovieDAO():
         """
         Create a movie.
 
-        :param movie: A dict representing the movie.
+        :param movie: The ``VideoBaseInDB`` object representing the movie to create.
         :returns: The id of the newly created movie.
         """
         LOGGER.debug(f'Creating movie: <{VideoBaseInDB}>.')
@@ -44,15 +44,16 @@ class MovieDAO():
             movie['id'] = str(movie.pop('_id'))
         return movie
 
-    def read_multi(self, page_length) -> List[Dict[str, Any]]:
+    def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
         """
         Read multiple movies.
 
-        :param page_length: The number of movies to read.
+        :param limit: The number of movies to read.
+        :param skip: The number of movies to skip.
         :returns: A list of Dicts representing movies.
         """
-        LOGGER.debug(f'Reading all movies with page_length: <{page_length}>.')
-        movies = self.client.foreign_subs.movies.find().limit(page_length)
+        LOGGER.debug(f'Reading all movies with limit: <{limit}> and skip: <{skip}>.')
+        movies = self.client.foreign_subs.movies.find().skip(skip).limit(limit)
         movies = list(movies)
         for movie in movies:
             movie['id'] = str(movie.pop('_id'))
