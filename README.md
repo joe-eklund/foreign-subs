@@ -8,6 +8,10 @@ Foreign subtitles are defined as subtitles that exist to display information eit
 
 # How to Run
 
+## Technologies
+
+ForeignSubs is built in three parts: A frontend built in [TypeScript](https://www.typescriptlang.org/) using [Angular](https://angular.io/), a RESTful API built in [Python3](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/), and [MongoDB](https://www.mongodb.com/) as the database.
+
 ## Database
 
 Inside the `docker` folder, run `docker-compose up -d` to launch MongoDB. Run `docker-compose down` to stop.
@@ -71,12 +75,12 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 More information for the frontend can be found in the frontend folder README.
 
-## License
+# License
 
 This code is released under the MIT License. See the LICENSE file for details.
 
 
-## Authors
+# Authors
 - Joe Eklund - https://github.com/joe-eklund
 - Sam Eklund - https://github.com/samueldeklund
 - Sam Maphey - https://github.com/sammaphey 
