@@ -4,6 +4,8 @@
 
 Inside the `docker` folder, run `docker-compose up -d` to launch MongoDB. Run `docker-compose down` to stop.
 
+- Make sure to update the database username and password if you are using this in production.
+
 ## Backend
 
 Create a Python virtual environment with `python -m venv venv` and `source venv/bin/activate`.
@@ -12,34 +14,64 @@ Create a Python virtual environment with `python -m venv venv` and `source venv/
 
 Run `fsubs`. Add `--help` for additional options.
 
+### Configuration
+
+The `--config/-c` option lets you use a custom config file. It should be in [`ini`](https://docs.python.org/3/library/configparser.html#supported-ini-file-structure) format.
+
+> **NOTE:**
+>
+> If you want to reload automatically while developing, you must create a file in `backend/fsubs/config` called `default_reload.ini`. In the section called `[app]` set `reload=True`.
+>
+> Best practice: copy `default.ini` to `default_reload.ini` and change `reload` from `False` to `True`.
+
+#### Environment Variables
+
+fsubs can be configured using environment variables. They corresponding to the command line options as follows:
+
+ Environment Variable | CLI Option | Description
+---|---|---
+ FSUBS_APP_BIND_ADDRESS | `--bind-address`| Set app bind IP address.
+ FSUBS_APP_BIND_PORT | `--bind-port`| Set app bind port.
+ FSUBS_APP_LOG_LEVEL | `--log-level`| Set app log level; valid values are `debug,info,warning,error,critical`.
+ FSUBS_DB_HOSTNAME | `--db-hostname`| Set the database hostname.
+ FSUBS_DB_PASSWORD | `--db-password`| Set the database password.
+ FSUBS_DB_PORT | `--db-port`| Set the database port.
+ FSUBS_DB_USERNAME | `--db-username`| Set the database username.
+
+#### Configuration Order
+
+Configuration values are read in the following order:
+
+- CLI params
+- environment vars
+- custom config file
+- `default_reload.ini` config
+- `default.ini` config
+
 ## Frontend
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.1.
 
-## Development server
+### Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
+### Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-## Running unit tests
+More information for the frontend can be found in the frontend folder README.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## License
 
-## Running end-to-end tests
+This code is released under the MIT License. See the LICENSE file for details.
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## Further help
+## Authors
+- Joe Eklund - https://github.com/joe-eklund
+- Sam Eklund - https://github.com/samueldeklund
+- Sam Maphey - https://github.com/sammaphey 
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
-### Configuration
-
-The `--config/-c` option lets you use a custom config file. It should be in [`ini`](https://docs.python.org/3/library/configparser.html#supported-ini-file-structure) format.
+Thanks to all contributors of this repo! If you would like to contribute you can contact the authors or open a Github issue.
