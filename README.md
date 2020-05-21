@@ -1,4 +1,12 @@
-# Run
+# Welcome
+
+This is the repository for https://foreignsubs.com. It is currently a work in progress.
+
+In short, the purpose of ForeignSubs is to document when a movie or tv show has foreign subtitles.
+
+Foreign subtitles are defined as subtitles that exist to display information either not spoken but is relevant (e.g. `3 months later`) or language spoken that is not in the main language of the media. So if the main language of the movie is in English, but there are some lines in Italian, the spoken Italian lines would be considered foreign subs.
+
+# How to Run
 
 ## Database
 
