@@ -72,6 +72,6 @@ This code is released under the MIT License. See the LICENSE file for details.
 - Joe Eklund - https://github.com/joe-eklund
 - Sam Eklund - https://github.com/samueldeklund
 - Sam Maphey - https://github.com/sammaphey 
-
+- Nick Wong -  https://github.com/wongesse
 
 Thanks to all contributors of this repo! If you would like to contribute you can contact the authors or open a Github issue.
