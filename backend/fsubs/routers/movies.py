@@ -8,13 +8,14 @@ import addict as ad
 from fastapi import APIRouter, Query, HTTPException
 from pymongo import MongoClient
 
-from fsubs.config.config import config
+from fsubs.config.config import Config
 from fsubs.crud.movie import MovieDAO
 from fsubs.models.misc import ObjectIdStr
 from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance, VideoInstanceInDB
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
+config = Config()
 
 client = MongoClient(
     host=config["db"]["hostname"],

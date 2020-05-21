@@ -8,11 +8,12 @@ from pathlib import Path
 import typer
 import uvicorn
 
-from fsubs.config.config import config
+from fsubs.config.config import Config
 
 LOGGER = logging.getLogger(__name__)
 
 cli = typer.Typer(add_completion=False)
+config = Config()
 
 
 class LogLevel(str, Enum):
@@ -65,7 +66,7 @@ def main(
 
     uvicorn.run(
         app='fsubs.routers.main:app',
-        host=config["app"]["bind_addr"],
+        host=config["app"]["bind_address"],
         port=config["app"].getint("bind_port"),
         reload=config["app"].getboolean("reload"),
         log_level=config["app"]["log_level"],

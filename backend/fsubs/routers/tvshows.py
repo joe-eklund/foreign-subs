@@ -6,7 +6,7 @@ from typing import List
 from fastapi import APIRouter, Query
 from pymongo import MongoClient
 
-from fsubs.config.config import config
+from fsubs.config.config import Config
 from fsubs.crud.tvshow import TVShowDAO
 from fsubs.models.misc import ObjectIdStr
 from fsubs.models.tvshow import TVShow, TVShowEpisode, TVShowEpisodeInDB, TVShowInDB
@@ -14,6 +14,7 @@ from fsubs.models.video import VideoInstanceInDB
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
+config = Config()
 
 client = MongoClient(
     host=config["db"]["hostname"],

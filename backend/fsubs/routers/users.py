@@ -6,13 +6,14 @@ import addict as ad
 from fastapi import APIRouter
 from pymongo import MongoClient
 
-from fsubs.config.config import config
+from fsubs.config.config import Config
 from fsubs.crud.user import UserDAO
 from fsubs.models.misc import ObjectIdStr
 from fsubs.models.user import UserCreate
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
+config = Config()
 
 client = MongoClient(
     host=config["db"]["hostname"],
