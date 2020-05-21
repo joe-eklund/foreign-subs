@@ -98,6 +98,9 @@ async def update_movie(uri: ObjectIdStr, movie: VideoBase):
 
     # Set metadata
     old_movie = ad.Dict(MOVIE_DAO.read(movie_id=uri))
+    if not old_movie:
+        LOGGER.debug(f'Movie not found for: {uri}.')
+        raise HTTPException(status_code=404, detail="Movie not found.")
 
     movie_to_store.metadata.date_created = old_movie.metadata.date_created
     movie_to_store.metadata.created_by = old_movie.metadata.created_by
@@ -241,9 +244,14 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
 
     MOVIE_DAO.update_version(movie_version_id=uri, movie_version=movie_version_to_store.to_dict())
 
-    movie_version_to_store.id = uri
-    return movie_version_to_store
-
+    updated_movie = MOVIE_DAO.read_version(movie_version_id=uri)
+    if not updated_movie:
+        msg = "Something went wrong while trying to update the movie version: {uri}."
+        LOGGER.error(msg)
+        raise HTTPException(
+            status_code=500,
+            detail=msg)
+    return updated_movie
 
 @router.delete("/versions/{uri}", tags=['movie versions'], status_code=204)
 async def delete_movie_version(uri: ObjectIdStr):
