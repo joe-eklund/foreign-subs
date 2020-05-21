@@ -26,7 +26,7 @@ The `--config/-c` option lets you use a custom config file. It should be in [`in
 
 #### Environment Variables
 
-fsubs can be configured using environment variables. They corresponding to the command line options as follows:
+fsubs can be configured using environment variables. They correspond to the command line options as follows:
 
  Environment Variable | CLI Option | Description
 ---|---|---
