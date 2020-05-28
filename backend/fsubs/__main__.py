@@ -1,6 +1,7 @@
 """Run fsubs app."""
 
 import logging
+import pathlib
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
@@ -36,19 +37,18 @@ def main(
     db_password: str = typer.Option(None, help="Set the database password."),
     db_port: int = typer.Option(None, help="Set the database port."),
     db_username: str = typer.Option(None, help="Set the database username."),
-    log_level: LogLevel = typer.Option(
-        LogLevel.info.value, "--log-level", "-l", show_default=True
-    ),
+    log_level: LogLevel = typer.Option(None, "--log-level", "-l", help="Set the log level. Default"
+                                                                       " to info."),
 ):
     """Run fsubs backend."""
     LOGGER.debug(f"Loading config from {cfg}.")
     config.read(cfg)
-
     cli_args = defaultdict(dict)
     cli_args["app"]["bind_address"] = bind_address
     cli_args["app"]["bind_port"] = bind_port
     cli_args["app"]["base_url"] = base_url
-    cli_args["app"]["log_level"] = log_level.value
+    if log_level is not None:
+        cli_args["app"]["log_level"] = log_level.value
     cli_args["db"]["hostname"] = db_hostname
     cli_args["db"]["port"] = db_port
     cli_args["db"]["username"] = db_username
@@ -69,6 +69,7 @@ def main(
         host=config["app"]["bind_address"],
         port=config["app"].getint("bind_port"),
         reload=config["app"].getboolean("reload"),
+        reload_dirs=[pathlib.Path(__file__).parent.absolute()],
         log_level=config["app"]["log_level"],
     )
 

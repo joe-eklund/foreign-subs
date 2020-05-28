@@ -1,16 +1,18 @@
 """REST API tv show functions."""
 
 import logging
+from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Query
+import addict as ad
+from fastapi import APIRouter, HTTPException, Query
 from pymongo import MongoClient
 
 from fsubs.config.config import Config
 from fsubs.crud.tvshow import TVShowDAO
 from fsubs.models.misc import ObjectIdStr
-from fsubs.models.tvshow import TVShow, TVShowEpisode, TVShowEpisodeInDB, TVShowInDB
-from fsubs.models.video import VideoInstanceInDB
+from fsubs.models.tvshow import TVShowEpisode, TVShowEpisodeInDB, TVShowInDB
+from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstanceInDB
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
@@ -29,7 +31,7 @@ TV_SHOW_DAO = TVShowDAO(client=client)
 
 
 @router.post("", tags=['tv shows'], response_model=ObjectIdStr, status_code=201)
-async def create_tv_show(tv_show: TVShow):
+async def create_tv_show(tv_show: VideoBase):
     """
     Create a tv show.
 
@@ -37,10 +39,19 @@ async def create_tv_show(tv_show: TVShow):
 
     **returns** - The id of the newly created tv show.
     """
-    raise NotImplementedError
+    user = 'admin'  # change to real user with auth later
+    LOGGER.debug(f'Creating tv show: <{tv_show}> as user: <{user}>.')
+    tv_show_to_store = ad.Dict(tv_show.dict())
+
+    # Set metadata
+    tv_show_to_store.metadata.date_created = datetime.now(timezone.utc)
+    tv_show_to_store.metadata.created_by = user
+    tv_show_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    tv_show_to_store.metadata.modified_by = user
+    return str(TV_SHOW_DAO.create(tv_show=tv_show_to_store.to_dict()))
 
 
-@router.get("/{uri}", response_model=TVShowInDB, tags=['tv shows'])
+@router.get("/{uri}", response_model=VideoBaseInDB, tags=['tv shows'])
 async def get_tv_show(uri: ObjectIdStr):
     """
     Get a tv show.
@@ -49,10 +60,15 @@ async def get_tv_show(uri: ObjectIdStr):
 
     **returns** - The tv show data.
     """
-    raise NotImplementedError
+    LOGGER.debug(f'Getting tv show: {uri}.')
+    tv_show = TV_SHOW_DAO.read(tv_show_id=uri)
+    if not tv_show:
+        raise HTTPException(status_code=404, detail="TV show not found.")
+    return tv_show
 
 
-@router.get("", response_model=List[TVShowInDB], tags=['tv shows'])
+
+@router.get("", response_model=List[VideoBaseInDB], tags=['tv shows'])
 async def get_tv_shows(start: int = Query(0, ge=0), page_length: int = Query(100, ge=1)):
     """
     Get tv shows.
@@ -67,7 +83,7 @@ async def get_tv_shows(start: int = Query(0, ge=0), page_length: int = Query(100
 
 
 @router.put("/{uri}", tags=['tv shows'], response_model=TVShowInDB, status_code=201)
-async def update_tv_show(uri: ObjectIdStr, tv_show: TVShow):
+async def update_tv_show(uri: ObjectIdStr, tv_show: VideoBase):
     """
     Update a tv show.
 

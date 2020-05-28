@@ -1,24 +1,19 @@
 """TV show models."""
 
-from pydantic import BaseModel
-
 from fsubs.models.video import VideoBase
+from fsubs.models.misc import Metadata
 
 
-class TVShow(BaseModel):
-    """
-    Representation of a single tv show.
-
-    todo params
-    """
-
-
-class TVShowInDB(TVShow):
+class TVShowInDB(VideoBase):
     """
     The TVShow stored in the db.
 
-    todo params
+    **id** - The id of the item in the database.
+
+    **metadata** - The Metadata object to be associated with the item.
     """
+    id: str
+    metadata: Metadata = Metadata()
 
 
 class TVShowEpisode(VideoBase):
