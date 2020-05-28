@@ -79,7 +79,8 @@ async def get_tv_shows(start: int = Query(0, ge=0), page_length: int = Query(100
 
     **returns** A list of tv shows.
     """
-    raise NotImplementedError
+    LOGGER.debug(f'Getting tv shows with start: <{start}> and page_length: <{page_length}>.')
+    return TV_SHOW_DAO.read_multi(limit=page_length, skip=start)
 
 
 @router.put("/{uri}", tags=['tv shows'], response_model=TVShowInDB, status_code=201)
@@ -93,7 +94,25 @@ async def update_tv_show(uri: ObjectIdStr, tv_show: VideoBase):
 
     **returns** - The new tv show data.
     """
-    raise NotImplementedError
+    user = 'admin'  # change to real user with auth later
+    LOGGER.debug(f'Updating tv_show: <{uri}> with data: <{tv_show}> and user: <{user}>.')
+    tv_show_to_store = ad.Dict(tv_show.dict())
+
+    # Set metadata
+    old_tv_show = ad.Dict(TV_SHOW_DAO.read(tv_show_id=uri))
+    if not old_tv_show:
+        LOGGER.debug(f'TV show not found for: {uri}.')
+        raise HTTPException(status_code=404, detail="TV show not found.")
+
+    tv_show_to_store.metadata.date_created = old_tv_show.metadata.date_created
+    tv_show_to_store.metadata.created_by = old_tv_show.metadata.created_by
+    tv_show_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    tv_show_to_store.metadata.modified_by = user
+
+    TV_SHOW_DAO.update(tv_show_id=uri, tv_show=tv_show_to_store.to_dict())
+
+    tv_show_to_store.id = uri
+    return tv_show_to_store
 
 
 @router.delete("/{uri}", tags=['tv shows'], status_code=204)
@@ -107,8 +126,9 @@ async def delete_tv_show(uri: ObjectIdStr):
 
     **returns** - No content.
     """
-    raise NotImplementedError
-
+    LOGGER.debug(f'Deleting tv show: <{uri}>.')
+    TV_SHOW_DAO.delete(tv_show_id=uri)
+    #TODO delete episodes
 
 #  /tv_shows/episodes endpoints
 

@@ -1,7 +1,7 @@
 """CRUD functions for tv shows."""
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from bson.objectid import ObjectId
 
@@ -43,3 +43,37 @@ class TVShowDAO():
         if tv_show:
             tv_show['id'] = str(tv_show.pop('_id'))
         return tv_show
+
+    def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
+        """
+        Read multiple tv shows.
+
+        :param limit: The number of tv shows to read.
+        :param skip: The number of tv shows to skip.
+        :returns: A list of Dicts representing tv shows.
+        """
+        LOGGER.debug(f'Reading all tv shows with limit: <{limit}> and skip: <{skip}>.')
+        tv_shows = self.client.foreign_subs.tv_shows.find().skip(skip).limit(limit)
+        tv_shows = list(tv_shows)
+        for tv_show in tv_shows:
+            tv_show['id'] = str(tv_show.pop('_id'))
+        return tv_shows
+
+    def update(self, tv_show_id: str, tv_show: VideoBaseInDB):
+        """
+        Update a tv show.
+
+        :param tv_show_id: The id of the tv show to update.
+        :param tv_show: The tv show data to update with.
+        """
+        LOGGER.debug(f'Updating tv show with uri: <{tv_show_id}> and tv_show: <{tv_show}>.')
+        self.client.foreign_subs.tv_show.update({'_id': ObjectId(tv_show_id)}, {'$set': tv_show})
+
+    def delete(self, tv_show_id: str):
+        """
+        Delete a tv show.
+
+        :param tv_show_id: The id of the tv show to delete.
+        """
+        LOGGER.debug(f'Deleting tv show: <{tv_show_id}>.')
+        self.client.foreign_subs.tv_shows.delete_one({'_id': ObjectId(tv_show_id)})
