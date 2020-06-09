@@ -3,13 +3,15 @@ import logging
 from datetime import datetime, timezone
 
 import addict as ad
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from pymongo import MongoClient
 
 from fsubs.config.config import Config
 from fsubs.crud.user import UserDAO
 from fsubs.models.misc import ObjectIdStr
-from fsubs.models.user import UserCreate
+from fsubs.models.user import Access, UserCreate, UserCreateToDAO, UserInDB
+from fsubs.routers.authenticate import get_token_header
+from fsubs.utils import users as user_utils
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
@@ -36,14 +38,21 @@ async def create_user(user_to_create: UserCreate):
 
     **returns** - The id of the newly created user.
     """
-    user = 'admin'  # change to real user with auth later
-    LOGGER.debug('Creating user with username: {user.username}, email: {user.email}, '
-                 'access: {user.access}.')
-    user_to_store = ad.Dict(user_to_create.dict())
+    user = ad.Dict(user_to_create.dict())
+    LOGGER.info(f'Creating user with username: {user.username}, email: {user.email}, '
+                f'access: {user.access}.')
+
     # set metadata
     LOGGER.debug('Setting metadata.')
-    user_to_store.metadata.date_created = datetime.now(timezone.utc)
-    user_to_store.metadata.created_by = user
-    user_to_store.metadata.last_modified = datetime.now(timezone.utc)
-    user_to_store.metadata.modified_by = user
+    user.metadata.date_created = datetime.now(timezone.utc)
+    user.metadata.created_by = user.username
+    user.metadata.last_modified = datetime.now(timezone.utc)
+    user.metadata.modified_by = user.username
+
+    # hash password
+    salt, key = user_utils.hash_password(password=user.password)
+    user.salt = str(salt)
+    user.hashed_password = str(key)
+    user_to_store = UserCreateToDAO(**user)
+    LOGGER.debug(f'User to store is: {user_to_store}')
     return str(USER_DAO.create(user=user_to_store))

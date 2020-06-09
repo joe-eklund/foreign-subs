@@ -2,7 +2,9 @@ addict
 fastapi
 flake8
 flake8-docstrings
+pyjwt
 pymongo
+python-multipart
 typer
 uvicorn
 

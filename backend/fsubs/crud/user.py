@@ -1,8 +1,12 @@
 """CRUD functions for users."""
 
 import logging
+import os
+from typing import Any, Dict
 
-from fsubs.models.user import UserInDB
+from bson.objectid import ObjectId
+
+from fsubs.models.user import UserCreateToDAO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +22,7 @@ class UserDAO():
         """
         self.client = client
 
-    def create(self, user: UserInDB) -> str:
+    def create(self, user: UserCreateToDAO) -> str:
         """
         Create a user.
 
@@ -26,4 +30,18 @@ class UserDAO():
         :returns: The id of the newly created user.
         """
         LOGGER.debug('Creating user from DAO.')
-        return self.client.foreign_subs.users.insert_one(user).inserted_id
+        return self.client.foreign_subs.users.insert_one(user.dict()).inserted_id
+
+    def read_by_username(self, username: str) -> Dict[str, Any]:
+        """
+        Read a user by username.
+
+        :param username: The username of the user to read.
+        :returns: Dict representing the user.
+        """
+        LOGGER.debug(f'Reading user: <{username}>.')
+        user = self.client.foreign_subs.users.find_one({'username': username})
+        if user:
+            user['id'] = str(user.pop('_id'))
+        LOGGER.debug(f'User read is: {user}.')
+        return user

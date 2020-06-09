@@ -77,3 +77,13 @@ class TVShowDAO():
         """
         LOGGER.debug(f'Deleting tv show: <{tv_show_id}>.')
         self.client.foreign_subs.tv_shows.delete_one({'_id': ObjectId(tv_show_id)})
+
+    def create_episode(self, episode: VideoBaseInDB) -> str:
+        """
+        Create a TV Episode.
+
+        :param user: The ``VideoBaseInDB`` object representing the tv episode to create.
+        :returns: The id of the newly created tv episode.
+        """
+        LOGGER.debug('Creating tv episode from DAO.')
+        return self.client.foreign_subs.tv_show_episodes.insert_one(episode).inserted_id

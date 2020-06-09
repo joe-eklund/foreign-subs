@@ -18,14 +18,16 @@ class UserBase(BaseModel):
     """
     User base data.
 
+    **access** - What access level the user is to have.
     **email** - What email to use for the user.
     **username** - What username to use for the user.
-    **access** - What access level the user is to have.
+
     """
 
+    access: Access = Access['basic']
     email: str
     username: str
-    access: Access = Access['basic']
+    verified: bool = False
 
 
 class UserCreate(UserBase):
@@ -38,15 +40,28 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserInDB(UserBase):
+class UserCreateToDAO(UserBase):
+    """
+    User creation data sent to DAO.
+
+    **salt** The salt used for the user's password.
+
+    **hashed_password** The hash of the user's password.
+
+    **metadata** The metadata of the user.
+
+    """
+
+    salt: str
+    hashed_password: str
+    metadata: Metadata = Metadata()
+
+
+class UserInDB(UserCreateToDAO):
     """
     The User stored in the db.
 
     **id** - The id of the user stored in the database.
-
-    **hashed_password** - The hashed version of the user's password.
     """
 
     id: str
-    hashed_password: str
-    metadata: Metadata = Metadata()

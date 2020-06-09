@@ -5,13 +5,14 @@ from typing import List
 
 
 import addict as ad
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException
 from pymongo import MongoClient
 
 from fsubs.config.config import Config
 from fsubs.crud.movie import MovieDAO
 from fsubs.models.misc import ObjectIdStr
 from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance, VideoInstanceInDB
+from fsubs.routers.authenticate import get_token_header
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
@@ -30,7 +31,7 @@ MOVIE_DAO = MovieDAO(client=client)
 
 
 @router.post("", tags=['movies'], response_model=ObjectIdStr, status_code=201)
-async def create_movie(movie: VideoBase):
+async def create_movie(movie: VideoBase, username: str = Depends(get_token_header)):
     """
     Create a movie.
 
@@ -38,7 +39,7 @@ async def create_movie(movie: VideoBase):
 
     **returns** - The id of the newly created movie.
     """
-    user = 'admin'  # change to real user with auth later
+    user = username  # change to real user with auth later
     LOGGER.debug(f'Creating movie: <{movie}> as user: <{user}>.')
     movie_to_store = ad.Dict(movie.dict())
 

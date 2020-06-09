@@ -128,12 +128,13 @@ async def delete_tv_show(uri: ObjectIdStr):
     """
     LOGGER.debug(f'Deleting tv show: <{uri}>.')
     TV_SHOW_DAO.delete(tv_show_id=uri)
-    #TODO delete episodes
+    # TODO delete episodes
 
 #  /tv_shows/episodes endpoints
 
+
 @router.post("/{uri}/episodes", tags=['tv show episodes'], response_model=str, status_code=201)
-async def create_tv_show_episode(uri: ObjectIdStr, episode: TVShowEpisode):
+async def create_tv_show_episode(uri: ObjectIdStr, episode: VideoBase):
     """
     Create a tv show episode.
 
@@ -143,7 +144,23 @@ async def create_tv_show_episode(uri: ObjectIdStr, episode: TVShowEpisode):
 
     **returns** - The id of the newly created tv show episode.
     """
-    raise NotImplementedError
+    # Make sure tv show exists
+    tv_show = TV_SHOW_DAO.read(tv_show_id=uri)
+    if not tv_show:
+        raise HTTPException(status_code=422, detail='uri must be a valid tv show id.')
+    user = 'admin'  # change to real user with auth later
+    LOGGER.debug(f'Creating tv episode for tv show: <{uri}> with data: <{episode}> and '
+                 f'user: <{user}>.')
+    episode_to_store = ad.Dict(episode.dict())
+
+    # Set metadata
+    episode_to_store.video_base_id = uri
+    episode_to_store.metadata.date_created = datetime.now(timezone.utc)
+    episode_to_store.metadata.created_by = user
+    episode_to_store.metadata.last_modified = datetime.now(timezone.utc)
+    episode_to_store.metadata.modified_by = user
+
+    return str(TV_SHOW_DAO.create_episode(episode=episode_to_store.to_dict()))
 
 
 @router.get("/episodes/{uri}", response_model=TVShowEpisodeInDB, tags=['tv show episodes'])

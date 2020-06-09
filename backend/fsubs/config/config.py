@@ -63,9 +63,12 @@ def get_env_vars():
     """Read environment variables to a dict."""
     vars = defaultdict(dict)
     names = [
+        "APP_BASE_URL",
         "APP_BIND_ADDRESS",
         "APP_BIND_PORT",
-        "APP_BASE_URL",
+        "APP_JWT_ALGORITHM",
+        "APP_JWT_EXPIRES_HOURS",
+        "APP_JWT_SECRET",
         "APP_LOG_LEVEL",
         "DB_HOSTNAME",
         "DB_PASSWORD",
