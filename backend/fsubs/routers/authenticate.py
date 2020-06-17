@@ -7,19 +7,30 @@ import addict as ad
 import jwt
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pymongo import MongoClient
 from jwt import PyJWTError
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from fsubs.config.config import Config
+from fsubs.crud.user import UserDAO
 from fsubs.utils import auth as auth_utils
+from fsubs.utils import users as user_utils
 
 router = APIRouter()
 
 LOGGER = logging.getLogger(__name__)
-CONFIG = Config()
-base_url = CONFIG["app"]["base_url"]
+config = Config()
+base_url = config["app"]["base_url"]
 token_url = f'{base_url or ""}/authenticate'
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=token_url)
+
+client = MongoClient(
+    host=config["db"]["hostname"],
+    port=config["db"].getint("port"),
+    username='root',
+    password='example',
+)
+USER_DAO = UserDAO(client=client)
 
 
 async def get_token_header(token: str = Depends(oauth2_scheme)) -> str:
@@ -32,8 +43,8 @@ async def get_token_header(token: str = Depends(oauth2_scheme)) -> str:
     try:
         payload = jwt.decode(
             token,
-            CONFIG["app"]["jwt_secret"],
-            algorithms=[CONFIG["app"]["jwt_algorithm"]])
+            config["app"]["jwt_secret"],
+            algorithms=[config["app"]["jwt_algorithm"]])
         username: str = payload.get("identity")
         if username is None:
             raise credentials_exception
@@ -57,9 +68,12 @@ async def authenticate(form_data: OAuth2PasswordRequestForm = Depends()):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    # TODO auth user against db
-    authenticated = True
-
+    user = ad.Dict(USER_DAO.read_by_username(username=username))
+    LOGGER.debug(f'User salt: {user.salt} with type: {type(user.salt)}.')
+    if user:
+        authenticated = user_utils.verify_password(password=password, salt=user.salt, key=user.hashed_password)
+    else:
+        raise credentials_exception
     if authenticated is False:
         raise credentials_exception
     elif authenticated is None:
@@ -68,7 +82,7 @@ async def authenticate(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(500, detail=msg)
 
     # Generate an access token
-    access_token_expires = timedelta(hours=int(CONFIG['app']['jwt_expires_hours']))
+    access_token_expires = timedelta(hours=int(config['app']['jwt_expires_hours']))
     token = auth_utils.create_access_token(
         data={"identity": username},
         expires_delta=access_token_expires)

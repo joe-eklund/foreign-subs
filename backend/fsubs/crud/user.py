@@ -45,3 +45,17 @@ class UserDAO():
             user['id'] = str(user.pop('_id'))
         LOGGER.debug(f'User read is: {user}.')
         return user
+
+    def read_by_email(self, email: str) -> Dict[str, Any]:
+        """
+        Read a user by email.
+
+        :param email: The email of the user to read.
+        :returns: Dict representing the user.
+        """
+        LOGGER.debug(f'Reading user: <{email}>.')
+        user = self.client.foreign_subs.users.find_one({'email': email})
+        if user:
+            user['id'] = str(user.pop('_id'))
+        LOGGER.debug(f'User read is: {user}.')
+        return user

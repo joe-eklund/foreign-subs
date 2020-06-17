@@ -42,8 +42,12 @@ fsubs can be configured using environment variables. They correspond to the comm
 
  Environment Variable | CLI Option | Description
 ---|---|---
+ FSUBS_APP_BASE_URL | `--base_url` | Set base url.
  FSUBS_APP_BIND_ADDRESS | `--bind-address`| Set app bind IP address.
  FSUBS_APP_BIND_PORT | `--bind-port`| Set app bind port.
+ FSUBS_APP_JWT_ALGORITHM | `--jwt_algorithm` | Set jwt algorithm. See [pyjwt docs](https://pyjwt.readthedocs.io/en/latest/algorithms.html#digital-signature-algorithms) for possible values.
+ FSUBS_APP_JWT_EXPIRES | `--jwt_expires_hours` | Set jwt expire time in hours.
+ FSUBS_APP_JWT_SECRET | `--jwt_secret` | Set the jwt secret used for encoding/decoding.
  FSUBS_APP_LOG_LEVEL | `--log-level`| Set app log level; valid values are `debug,info,warning,error,critical`.
  FSUBS_DB_HOSTNAME | `--db-hostname`| Set the database hostname.
  FSUBS_DB_PASSWORD | `--db-password`| Set the database password.

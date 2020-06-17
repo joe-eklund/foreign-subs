@@ -29,7 +29,11 @@ USER_DAO = UserDAO(client=client)
 # / user endpoints
 
 
-@router.post("", tags=['users'], response_model=ObjectIdStr, status_code=201)
+@router.post(
+    "",
+    tags=['users'],
+    response_model=ObjectIdStr,
+    status_code=201)
 async def create_user(user_to_create: UserCreate):
     """
     Create a user.
@@ -39,8 +43,13 @@ async def create_user(user_to_create: UserCreate):
     **returns** - The id of the newly created user.
     """
     user = ad.Dict(user_to_create.dict())
-    LOGGER.info(f'Creating user with username: {user.username}, email: {user.email}, '
-                f'access: {user.access}.')
+    LOGGER.info(f'Creating user with username: {user.username}, email: {user.email}.')
+
+    # Check if username or email is in use
+    if USER_DAO.read_by_username(username=user.username):
+        raise HTTPException(status_code=409, detail='That username is already in use.')
+    if USER_DAO.read_by_email(email=user.email):
+        raise HTTPException(status_code=409, detail='That email is already in use.')
 
     # set metadata
     LOGGER.debug('Setting metadata.')
@@ -51,8 +60,8 @@ async def create_user(user_to_create: UserCreate):
 
     # hash password
     salt, key = user_utils.hash_password(password=user.password)
-    user.salt = str(salt)
-    user.hashed_password = str(key)
+    user.salt = salt
+    user.hashed_password = key
     user_to_store = UserCreateToDAO(**user)
     LOGGER.debug(f'User to store is: {user_to_store}')
     return str(USER_DAO.create(user=user_to_store))

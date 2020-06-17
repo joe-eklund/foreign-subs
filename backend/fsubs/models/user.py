@@ -1,7 +1,9 @@
 """User models."""
 from enum import Enum
+import re
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
+from pymongo import MongoClient
 
 from fsubs.models.misc import Metadata
 
@@ -30,14 +32,44 @@ class UserBase(BaseModel):
     verified: bool = False
 
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
     """
     User creation data.
 
     **password** - What password to use for the user.
     """
 
+    email: str
+    username: str
     password: str
+
+    @validator('email')
+    def check_email(cls, v):
+        """Ensure email is valid."""
+        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$' 
+        if not v:
+            raise ValueError('Cannot have empty string for email.')
+        if not re.search(regex, v):
+            raise ValueError('Invalid email.')
+        return v
+
+    @validator('username')
+    def check_username(cls, v):
+        """Ensure username is valid."""
+        if not v:
+            raise ValueError('Cannot have empty string for username.')
+        return v
+
+    @validator('password')
+    def check_password(cls, v):
+        """Ensure password is valid."""
+        if not v:
+            raise ValueError('Cannot have empty string for password.')
+        if len(v) < 8:
+            raise ValueError('Password must be at least 8 characters long.')
+        if len(v) > 1024:
+            raise ValueError('Password cannot be longer than 1024 characters.')
+        return v
 
 
 class UserCreateToDAO(UserBase):
