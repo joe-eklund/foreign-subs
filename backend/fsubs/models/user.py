@@ -29,6 +29,7 @@ class UserBase(BaseModel):
     email: str
     username: str
     verified: bool = False
+    metadata: Metadata = Metadata()
 
 
 class UserCreate(BaseModel):
@@ -71,6 +72,16 @@ class UserCreate(BaseModel):
         return v
 
 
+class UserRead(UserBase):
+    """
+    The information to return to someone reading a user.
+
+    **id** - THe id of the user stored in the database.
+    """
+
+    id: str
+
+
 class UserCreateToDAO(UserBase):
     """
     User creation data sent to DAO.
@@ -85,7 +96,6 @@ class UserCreateToDAO(UserBase):
 
     salt: str
     hashed_password: str
-    metadata: Metadata = Metadata()
 
 
 class UserInDB(UserCreateToDAO):
