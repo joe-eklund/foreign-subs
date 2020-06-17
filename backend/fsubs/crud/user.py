@@ -1,10 +1,7 @@
 """CRUD functions for users."""
 
 import logging
-import os
 from typing import Any, Dict
-
-from bson.objectid import ObjectId
 
 from fsubs.models.user import UserCreateToDAO
 

@@ -33,6 +33,7 @@ class JWTAlgorithm(str, Enum):
 
     Taken from: https://pyjwt.readthedocs.io/en/latest/algorithms.html#digital-signature-algorithms
     """
+
     HS256 = "HS256"  # HMAC using SHA-256 hash algorithm (default)
     HS384 = "HS384"  # HMAC using SHA-384 hash algorithm
     HS512 = "HS512"  # HMAC using SHA-512 hash algorithm

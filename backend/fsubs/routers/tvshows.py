@@ -67,7 +67,6 @@ async def get_tv_show(uri: ObjectIdStr):
     return tv_show
 
 
-
 @router.get("", response_model=List[VideoBaseInDB], tags=['tv shows'])
 async def get_tv_shows(start: int = Query(0, ge=0), page_length: int = Query(100, ge=1)):
     """

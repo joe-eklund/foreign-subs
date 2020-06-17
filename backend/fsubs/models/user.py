@@ -3,7 +3,6 @@ from enum import Enum
 import re
 
 from pydantic import BaseModel, validator
-from pymongo import MongoClient
 
 from fsubs.models.misc import Metadata
 
@@ -46,7 +45,7 @@ class UserCreate(BaseModel):
     @validator('email')
     def check_email(cls, v):
         """Ensure email is valid."""
-        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$' 
+        regex = '^[a-z0-9]+[\\._]?[a-z0-9]+[@]\\w+[.]\\w+$'
         if not v:
             raise ValueError('Cannot have empty string for email.')
         if not re.search(regex, v):

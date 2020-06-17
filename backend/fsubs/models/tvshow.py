@@ -12,6 +12,7 @@ class TVShowInDB(VideoBase):
 
     **metadata** - The Metadata object to be associated with the item.
     """
+
     id: str
     metadata: Metadata = Metadata()
 

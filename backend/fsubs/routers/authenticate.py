@@ -71,7 +71,10 @@ async def authenticate(form_data: OAuth2PasswordRequestForm = Depends()):
     user = ad.Dict(USER_DAO.read_by_username(username=username))
     LOGGER.debug(f'User salt: {user.salt} with type: {type(user.salt)}.')
     if user:
-        authenticated = user_utils.verify_password(password=password, salt=user.salt, key=user.hashed_password)
+        authenticated = user_utils.verify_password(
+            password=password,
+            salt=user.salt,
+            key=user.hashed_password)
     else:
         raise credentials_exception
     if authenticated is False:

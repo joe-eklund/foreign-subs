@@ -166,7 +166,7 @@ async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     return str(MOVIE_DAO.create_version(movie_version=movie_version_to_store.to_dict()))
 
 
-@router.get("/versions/{uri}", 
+@router.get("/versions/{uri}",
             response_model=VideoInstanceInDB,
             tags=['movie versions'],
             status_code=200)
@@ -253,6 +253,7 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
             status_code=500,
             detail=msg)
     return updated_movie
+
 
 @router.delete("/versions/{uri}", tags=['movie versions'], status_code=204)
 async def delete_movie_version(uri: ObjectIdStr):

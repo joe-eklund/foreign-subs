@@ -3,14 +3,13 @@ import logging
 from datetime import datetime, timezone
 
 import addict as ad
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 
 from fsubs.config.config import Config
 from fsubs.crud.user import UserDAO
 from fsubs.models.misc import ObjectIdStr
-from fsubs.models.user import Access, UserCreate, UserCreateToDAO, UserInDB
-from fsubs.routers.authenticate import get_token_header
+from fsubs.models.user import UserCreate, UserCreateToDAO
 from fsubs.utils import users as user_utils
 
 LOGGER = logging.getLogger(__name__)
