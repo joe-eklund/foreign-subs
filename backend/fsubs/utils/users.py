@@ -43,6 +43,4 @@ def verify_password(password: str, salt: str, key: str) -> bool:
         salt.encode('ascii'),
         100000
     )
-    new_key = binascii.hexlify(new_key).decode()
-    LOGGER.debug(f'New key is: {new_key}.')
-    return new_key == key
+    return binascii.hexlify(new_key).decode() == key
