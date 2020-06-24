@@ -72,17 +72,29 @@ class UserDAO():
         LOGGER.debug(f'User read is: {user}.')
         return user
 
-    def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
+    def read_multi(self, limit=100, skip=0, search=None) -> List[Dict[str, Any]]:
         """
         Read multiple users.
 
         :param limit: The number of users to read.
         :param skip: The number of users to skip.
+        :param search: A dictionary of things to inject into pymongo find (e.g.
+         ``{'email': 'j@e.com'}``))
         :returns: A list of Dicts representing users.
         """
         LOGGER.debug(f'Reading all user with limit: <{limit}> and skip: <{skip}>.')
-        users = self.client.foreign_subs.users.find().skip(skip).limit(limit)
+        users = self.client.foreign_subs.users.find(search).skip(skip).limit(limit)
         users = list(users)
         for user in users:
             user['id'] = str(user.pop('_id'))
         return users
+
+    def update(self, user_id: str, user: UserCreateToDAO) -> Dict[str, Any]:
+        """
+        Update a user.
+
+        :param user_id: The id of the user to update.
+        :param user: The user data to update with.
+        """
+        LOGGER.debug(f'Updating user with uri: <{user_id}> and user: <{user}>.')
+        self.client.foreign_subs.users.update({'_id': ObjectId(user_id)}, {'$set': user})

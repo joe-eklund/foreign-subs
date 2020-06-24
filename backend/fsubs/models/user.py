@@ -2,7 +2,7 @@
 from enum import Enum
 import re
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, root_validator, validator
 
 from fsubs.models.misc import Metadata
 
@@ -19,10 +19,13 @@ class UserBase(BaseModel):
     """
     User base data.
 
-    **access** - What access level the user is to have.
+    **access** - What access level the user is to have. 
+
     **email** - What email to use for the user.
+
     **username** - What username to use for the user.
 
+    **verified** - Whether or not the user has been verified.
     """
 
     access: Access = Access['basic']
@@ -32,32 +35,26 @@ class UserBase(BaseModel):
     metadata: Metadata = Metadata()
 
 
-class UserCreate(BaseModel):
+class UserUpdate(BaseModel):
     """
-    User creation data.
+    User update data.
+
+    ***email** - What email to use for the user.
 
     **password** - What password to use for the user.
     """
 
     email: str
-    username: str
     password: str
 
     @validator('email')
     def check_email(cls, v):
         """Ensure email is valid."""
-        regex = '^[a-z0-9]+[\\._]?[a-z0-9]+[@]\\w+[.]\\w+$'
+        regex = '^[a-z0-9]+([\\._]?[a-z0-9]+|)[@]\\w+[.]\\w+$'
         if not v:
             raise ValueError('Cannot have empty string for email.')
         if not re.search(regex, v):
             raise ValueError('Invalid email.')
-        return v
-
-    @validator('username')
-    def check_username(cls, v):
-        """Ensure username is valid."""
-        if not v:
-            raise ValueError('Cannot have empty string for username.')
         return v
 
     @validator('password')
@@ -70,6 +67,25 @@ class UserCreate(BaseModel):
         if len(v) > 1024:
             raise ValueError('Password cannot be longer than 1024 characters.')
         return v
+
+
+class UserCreate(UserUpdate):
+    """
+    User creation data.
+
+    **username** - What username to use for the user.
+    """
+
+    username: str
+
+    @validator('username')
+    def check_username(cls, v):
+        """Ensure username is valid."""
+        if not v:
+            raise ValueError('Cannot have empty string for username.')
+        return v
+
+
 
 
 class UserRead(UserBase):
