@@ -21,7 +21,7 @@ class MovieDAO():
         """
         self.client = client
 
-    def create(self, movie: VideoBaseInDB) -> str:
+    async def create(self, movie: VideoBaseInDB) -> str:
         """
         Create a movie.
 
@@ -31,7 +31,7 @@ class MovieDAO():
         LOGGER.debug(f'Creating movie: <{VideoBaseInDB}>.')
         return self.client.foreign_subs.movies.insert_one(movie).inserted_id
 
-    def read(self, movie_id: str) -> Dict[str, Any]:
+    async def read(self, movie_id: str) -> Dict[str, Any]:
         """
         Read a movie.
 
@@ -44,7 +44,7 @@ class MovieDAO():
             movie['id'] = str(movie.pop('_id'))
         return movie
 
-    def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
+    async def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
         """
         Read multiple movies.
 
@@ -59,7 +59,7 @@ class MovieDAO():
             movie['id'] = str(movie.pop('_id'))
         return movies
 
-    def update(self, movie_id: str, movie: VideoBaseInDB):
+    async def update(self, movie_id: str, movie: VideoBaseInDB):
         """
         Update a movie.
 
@@ -69,7 +69,7 @@ class MovieDAO():
         LOGGER.debug(f'Updating movie with uri: <{movie_id}> and movie: <{movie}>.')
         self.client.foreign_subs.movies.update({'_id': ObjectId(movie_id)}, {'$set': movie})
 
-    def delete(self, movie_id: str):
+    async def delete(self, movie_id: str):
         """
         Delete a movie.
 
@@ -78,7 +78,7 @@ class MovieDAO():
         LOGGER.debug(f'Deleting movie: <{movie_id}>.')
         self.client.foreign_subs.movies.delete_one({'_id': ObjectId(movie_id)})
 
-    def create_version(self, movie_version: VideoInstanceInDB) -> str:
+    async def create_version(self, movie_version: VideoInstanceInDB) -> str:
         """
         Create a movie version.
 
@@ -88,12 +88,12 @@ class MovieDAO():
         LOGGER.debug(f'Creating movie version: <{movie_version}>.')
         return self.client.foreign_subs.movie_versions.insert_one(movie_version).inserted_id
 
-    def read_version(self, movie_version_id: str) -> Dict[str, Any]:
+    async def read_version(self, movie_version_id: str) -> Dict[str, Any]:
         """
         Read a movie version.
 
         :param movie_version_id: The id of the movie to read.
-        :returns: Dict representing the movie.
+        :returns: Dict representing the movie version.
         """
         LOGGER.debug(f'Reading movie version: <{movie_version_id}>.')
         movie_version = self.client.foreign_subs.movie_versions.find_one(
@@ -102,12 +102,12 @@ class MovieDAO():
             movie_version['id'] = str(movie_version.pop('_id'))
         return movie_version
 
-    def read_movie_versions(self, movie_id: str) -> Dict[str, Any]:
+    async def read_movie_versions(self, movie_id: str) -> Dict[str, Any]:
         """
         Read all the versions of a movie.
 
-        :param movie_version_id: The id of the movie to read.
-        :returns: Dict representing the movie.
+        :param movie_id: The id of the movie to read versions for.
+        :returns: List of movie versions.
         """
         LOGGER.debug(f'Reading movie versions for: <{movie_id}>.')
         movie_versions = self.client.foreign_subs.movie_versions.find(
@@ -118,11 +118,11 @@ class MovieDAO():
             versions.append(v)
         return versions
 
-    def update_version(self, movie_version_id: str, movie_version) -> VideoInstanceInDB:
+    async def update_version(self, movie_version_id: str, movie_version) -> VideoInstanceInDB:
         """
         Update a movie version.
 
-        :param movie_id: The id of the movie version to update.
+        :param movie_version_id: The id of the movie version to update.
         :param movie_version: The movie version data to update with.
         """
         LOGGER.debug(f'Updating movie version with uri: <{movie_version_id}> and movie_version: '
@@ -131,20 +131,20 @@ class MovieDAO():
             {'_id': ObjectId(movie_version_id)},
             {'$set': movie_version})
 
-    def delete_version(self, movie_version_id: str):
+    async def delete_version(self, movie_version_id: str):
         """
         Delete a movie version.
 
-        :param movie_id: The id of the movie to delete.
+        :param movie_version_id: The id of the movie version to delete.
         """
         LOGGER.debug(f'Deleting movie version: <{movie_version_id}>.')
         self.client.foreign_subs.movie_versions.delete_one({'_id': ObjectId(movie_version_id)})
 
-    def delete_movie_versions(self, movie_id: str):
+    async def delete_movie_versions(self, movie_id: str):
         """
         Delete all the versions of a movie.
 
-        :param movie_version_id: The id of the movie to delete with.
+        :param movie_id: The id of the movie to delete with.
         """
         LOGGER.debug(f'Deleting movie version for: <{movie_id}>.')
         self.client.foreign_subs.movie_versions.delete_many({'video_base_id': str(movie_id)})

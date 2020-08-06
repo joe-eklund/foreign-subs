@@ -21,7 +21,7 @@ class UserDAO():
         """
         self.client = client
 
-    def create(self, user: UserCreateToDAO) -> str:
+    async def create(self, user: UserCreateToDAO) -> str:
         """
         Create a user.
 
@@ -31,7 +31,7 @@ class UserDAO():
         LOGGER.debug('Creating user from DAO.')
         return self.client.foreign_subs.users.insert_one(user.dict()).inserted_id
 
-    def read(self, user_id: str) -> Dict[str, Any]:
+    async def read(self, user_id: str) -> Dict[str, Any]:
         """
         Read a user.
 
@@ -44,7 +44,7 @@ class UserDAO():
             user['id'] = str(user.pop('_id'))
         return user
 
-    def read_by_username(self, username: str) -> Dict[str, Any]:
+    async def read_by_username(self, username: str) -> Dict[str, Any]:
         """
         Read a user by username.
 
@@ -58,7 +58,7 @@ class UserDAO():
         LOGGER.debug(f'User read is: {user}.')
         return user
 
-    def read_by_email(self, email: str) -> Dict[str, Any]:
+    async def read_by_email(self, email: str) -> Dict[str, Any]:
         """
         Read a user by email.
 
@@ -72,7 +72,7 @@ class UserDAO():
         LOGGER.debug(f'User read is: {user}.')
         return user
 
-    def read_multi(self, limit=100, skip=0, search=None) -> List[Dict[str, Any]]:
+    async def read_multi(self, limit=100, skip=0, search=None) -> List[Dict[str, Any]]:
         """
         Read multiple users.
 
@@ -89,7 +89,7 @@ class UserDAO():
             user['id'] = str(user.pop('_id'))
         return users
 
-    def update(self, user_id: str, user: UserCreateToDAO) -> Dict[str, Any]:
+    async def update(self, user_id: str, user: UserCreateToDAO) -> Dict[str, Any]:
         """
         Update a user.
 

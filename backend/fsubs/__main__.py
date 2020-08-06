@@ -1,5 +1,5 @@
 """Run fsubs app."""
-
+import inspect
 import logging
 import pathlib
 from collections import defaultdict
@@ -11,7 +11,10 @@ import uvicorn
 
 from fsubs.config.config import Config
 
+ROOTLOGGER = logging.getLogger(inspect.getmodule(__name__))
 LOGGER = logging.getLogger(__name__)
+LOG_FORMAT = "%(asctime)s - %(name)s:%(funcName)s:%(lineno)s - " \
+             "%(levelname)s - %(message)s"
 
 cli = typer.Typer(add_completion=False)
 config = Config()
@@ -46,6 +49,23 @@ class JWTAlgorithm(str, Enum):
     PS256 = "PS256"  # RSASSA-PSS signature using SHA-256 and MGF1 padding with SHA-256
     PS384 = "PS384"  # RSASSA-PSS signature using SHA-384 and MGF1 padding with SHA-384
     PS512 = "PS512"  # RSASSA-PSS signature using SHA-512 and MGF1 padding with SHA-512
+
+
+def setup_logging():
+    """Set up logging based on provided log params."""
+    formatter = logging.Formatter(LOG_FORMAT)
+    ROOTLOGGER.setLevel(config["app"]["log_level"].upper())
+
+    sh = logging.StreamHandler()
+    sh.setLevel(config["app"]["log_level"].upper())
+    sh.setFormatter(formatter)
+    ROOTLOGGER.addHandler(sh)
+
+    LOGGER.info("-------------------------STARTING-------------------------")
+    LOGGER.info("INFO Logging Level -- Enabled")
+    LOGGER.warning("WARNING Logging Level -- Enabled")
+    LOGGER.critical("CRITICAL Logging Level -- Enabled")
+    LOGGER.debug("DEBUG Logging Level -- Enabled")
 
 
 @cli.command()
@@ -93,7 +113,7 @@ def main(
 
     if config["app"]["base_url"] and not config["app"]["base_url"].startswith("/"):
         config["app"]["base_url"] = f'/{config["app"]["base_url"]}'
-
+    setup_logging()
     uvicorn.run(
         app='fsubs.routers.main:app',
         host=config["app"]["bind_address"],

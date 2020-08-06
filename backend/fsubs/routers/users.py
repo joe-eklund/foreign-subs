@@ -51,7 +51,7 @@ async def read_users(
     **returns** - A list of users.
     """
     LOGGER.debug(f'Getting users with start: <{start}> and page_length: <{page_length}.')
-    user = ad.Dict(USER_DAO.read_by_username(username=username))
+    user = ad.Dict(await USER_DAO.read_by_username(username=username))
     if not user:
         raise HTTPException(
             status_code=500,
@@ -61,7 +61,7 @@ async def read_users(
         raise HTTPException(
             status_code=403,
             detail='User does not have access to read other users.')
-    return USER_DAO.read_multi(limit=page_length, skip=start)
+    return await USER_DAO.read_multi(limit=page_length, skip=start)
 
 
 @router.get(
@@ -76,7 +76,7 @@ async def read_self(username: str = Depends(get_token_header)):
     **returns** - The user data.
     """
     LOGGER.debug(f'Getting user: {username}.')
-    user = USER_DAO.read_by_username(username=username)
+    user = await USER_DAO.read_by_username(username=username)
     if not user:
         raise HTTPException(status_code=500, detail='Unable to get user data for: {username}.')
     return user
@@ -98,17 +98,17 @@ async def read_user(username: str, acting_username: str = Depends(get_token_head
     **returns** - The user data.
     """
     LOGGER.debug(f'Getting user: {username}.')
-    acting_user = ad.Dict(USER_DAO.read_by_username(username=acting_username))
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
     if not acting_user:
         raise HTTPException(
             status_code=500,
             detail=f'Unable to get user data for: {acting_username}. Cannot proceed with reading '
                    f'of {username}.')
-    if not acting_user.access == Access['admin'] or acting_username == username:
+    if not acting_user.access == Access['admin'] and acting_username != username:
         raise HTTPException(
             status_code=403,
             detail='User does not have access to read other users.')
-    user = ad.Dict(USER_DAO.read_by_username(username=username))
+    user = ad.Dict(await USER_DAO.read_by_username(username=username))
     if not user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {username}.')
     return user
@@ -130,17 +130,17 @@ async def read_user_id(user_id: ObjectIdStr, acting_username: str = Depends(get_
     **returns** - The user data.
     """
     LOGGER.debug(f'Getting user id: {user_id}.')
-    acting_user = ad.Dict(USER_DAO.read_by_username(username=acting_username))
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
     if not acting_user:
         raise HTTPException(
             status_code=500,
             detail=f'Unable to get user data for: {acting_username}. Cannot proceed with reading '
                    f'of {user_id}.')
-    if not acting_user.access == Access['admin'] or acting_user.id == user_id:
+    if not acting_user.access == Access['admin'] and acting_user.id != user_id:
         raise HTTPException(
             status_code=403,
             detail='User does not have access to read other users.')
-    user = ad.Dict(USER_DAO.read(user_id=user_id))
+    user = ad.Dict(await USER_DAO.read(user_id=user_id))
     if not user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
     return user
@@ -163,9 +163,9 @@ async def create_user(user_to_create: UserCreate):
     LOGGER.info(f'Creating user with username: {user.username}, email: {user.email}.')
 
     # Check if username or email is in use
-    if USER_DAO.read_by_username(username=user.username):
+    if await USER_DAO.read_by_username(username=user.username):
         raise HTTPException(status_code=409, detail='That username is already in use.')
-    if USER_DAO.read_by_email(email=user.email):
+    if await USER_DAO.read_by_email(email=user.email):
         raise HTTPException(status_code=409, detail='That email is already in use.')
 
     # set metadata
@@ -181,7 +181,7 @@ async def create_user(user_to_create: UserCreate):
     user.hashed_password = key
     user_to_store = UserCreateToDAO(**user)
     LOGGER.debug(f'User to store is: {user_to_store}')
-    return str(USER_DAO.create(user=user_to_store))
+    return str(await USER_DAO.create(user=user_to_store))
 
 
 @router.put(
@@ -203,23 +203,23 @@ async def update_user(
     **returns** - The user data.
     """
     LOGGER.debug(f'Updating user id: {user_id}.')
-    acting_user = ad.Dict(USER_DAO.read_by_username(username=acting_username))
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
     if not acting_user:
         raise HTTPException(
             status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with reading '
+            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with updating '
                    f'of {user_id}.')
     if not (acting_user.access == Access['admin'] or acting_user.id == user_id):
         raise HTTPException(
             status_code=403,
             detail='User does not have access to read other users.')
 
-    old_user = ad.Dict(USER_DAO.read(user_id=user_id))
+    old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
     if not old_user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
 
     # Check if new email is in use.
-    users = USER_DAO.read_multi(search={'email': user_to_update.email})
+    users = await USER_DAO.read_multi(search={'email': user_to_update.email})
     if len(users) > 0 and users[0]['id'] != user_id:
         raise HTTPException(
             status_code=422,
@@ -243,5 +243,68 @@ async def update_user(
     user_to_store = UserCreateToDAO(**user)
     LOGGER.debug(f'User to store is: {user_to_store}')
 
-    USER_DAO.update(user_id=user_id, user=user_to_store.dict())
-    return USER_DAO.read(user_id=user_id)
+    await USER_DAO.update(user_id=user_id, user=user_to_store.dict())
+    return await USER_DAO.read(user_id=user_id)
+
+@router.patch(
+    '/userid/{user_id}',
+    tags=['users'],
+    response_model=UserRead,
+    status_code=201)
+async def patch_user(
+        user_id: ObjectIdStr,
+        user_to_patch: UserUpdate,
+        acting_username: str = Depends(get_token_header)):
+    """
+    Patch a given user with the given data.
+
+    A user must have admin access to patch other users.
+
+    **user_to_patch** - The user data to patch the user with.
+
+    **returns** - The user data.
+    """
+    LOGGER.debug(f'Patching user id: {user_id}.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(
+            status_code=500,
+            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with patching '
+                   f'of {user_id}.')
+    if not (acting_user.access == Access['admin'] or acting_user.id == user_id):
+        raise HTTPException(
+            status_code=403,
+            detail='User does not have access to read other users.')
+
+    old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    if not old_user:
+        raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
+
+    # Check if new email is in use.
+    users = await USER_DAO.read_multi(search={'email': user_to_update.email})
+    if len(users) > 0 and users[0]['id'] != user_id:
+        raise HTTPException(
+            status_code=422,
+            detail=f'Unable to update user {user_id} to email: {user_to_update.email} '
+                   'because that email is already in use.')
+
+    user = ad.Dict(user_to_update.dict())
+    # set info that cannot be changed from user
+    LOGGER.debug('Setting metadata.')
+    user.username = old_user.username
+    user.metadata.date_created = old_user.metadata.date_created
+    user.metadata.created_by = old_user.metadata.created_by
+    user.metadata.last_modified = datetime.now(timezone.utc)
+    user.metadata.modified_by = acting_username
+    user.verified = old_user.verified
+
+    # hash new password
+    salt, key = user_utils.hash_password(password=user_to_update.password)
+    user.salt = salt
+    user.hashed_password = key
+    user_to_store = UserCreateToDAO(**user)
+    LOGGER.debug(f'User to store is: {user_to_store}')
+
+    await USER_DAO.update(user_id=user_id, user=user_to_store.dict())
+    return await USER_DAO.read(user_id=user_id)
+

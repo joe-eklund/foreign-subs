@@ -68,7 +68,7 @@ async def authenticate(form_data: OAuth2PasswordRequestForm = Depends()):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    user = ad.Dict(USER_DAO.read_by_username(username=username))
+    user = ad.Dict(await USER_DAO.read_by_username(username=username))
     LOGGER.debug(f'User salt: {user.salt} with type: {type(user.salt)}.')
     if user:
         authenticated = user_utils.verify_password(

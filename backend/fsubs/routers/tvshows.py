@@ -61,7 +61,7 @@ async def get_tv_show(uri: ObjectIdStr):
     **returns** - The tv show data.
     """
     LOGGER.debug(f'Getting tv show: {uri}.')
-    tv_show = TV_SHOW_DAO.read(tv_show_id=uri)
+    tv_show = await TV_SHOW_DAO.read(tv_show_id=uri)
     if not tv_show:
         raise HTTPException(status_code=404, detail="TV show not found.")
     return tv_show
@@ -79,7 +79,7 @@ async def get_tv_shows(start: int = Query(0, ge=0), page_length: int = Query(100
     **returns** A list of tv shows.
     """
     LOGGER.debug(f'Getting tv shows with start: <{start}> and page_length: <{page_length}>.')
-    return TV_SHOW_DAO.read_multi(limit=page_length, skip=start)
+    return await TV_SHOW_DAO.read_multi(limit=page_length, skip=start)
 
 
 @router.put("/{uri}", tags=['tv shows'], response_model=TVShowInDB, status_code=201)
@@ -98,7 +98,7 @@ async def update_tv_show(uri: ObjectIdStr, tv_show: VideoBase):
     tv_show_to_store = ad.Dict(tv_show.dict())
 
     # Set metadata
-    old_tv_show = ad.Dict(TV_SHOW_DAO.read(tv_show_id=uri))
+    old_tv_show = ad.Dict(await TV_SHOW_DAO.read(tv_show_id=uri))
     if not old_tv_show:
         LOGGER.debug(f'TV show not found for: {uri}.')
         raise HTTPException(status_code=404, detail="TV show not found.")
@@ -108,7 +108,7 @@ async def update_tv_show(uri: ObjectIdStr, tv_show: VideoBase):
     tv_show_to_store.metadata.last_modified = datetime.now(timezone.utc)
     tv_show_to_store.metadata.modified_by = user
 
-    TV_SHOW_DAO.update(tv_show_id=uri, tv_show=tv_show_to_store.to_dict())
+    await TV_SHOW_DAO.update(tv_show_id=uri, tv_show=tv_show_to_store.to_dict())
 
     tv_show_to_store.id = uri
     return tv_show_to_store
@@ -126,7 +126,7 @@ async def delete_tv_show(uri: ObjectIdStr):
     **returns** - No content.
     """
     LOGGER.debug(f'Deleting tv show: <{uri}>.')
-    TV_SHOW_DAO.delete(tv_show_id=uri)
+    await TV_SHOW_DAO.delete(tv_show_id=uri)
     # TODO delete episodes
 
 #  /tv_shows/episodes endpoints
@@ -144,7 +144,7 @@ async def create_tv_show_episode(uri: ObjectIdStr, episode: VideoBase):
     **returns** - The id of the newly created tv show episode.
     """
     # Make sure tv show exists
-    tv_show = TV_SHOW_DAO.read(tv_show_id=uri)
+    tv_show = await TV_SHOW_DAO.read(tv_show_id=uri)
     if not tv_show:
         raise HTTPException(status_code=422, detail='uri must be a valid tv show id.')
     user = 'admin'  # change to real user with auth later
@@ -159,7 +159,7 @@ async def create_tv_show_episode(uri: ObjectIdStr, episode: VideoBase):
     episode_to_store.metadata.last_modified = datetime.now(timezone.utc)
     episode_to_store.metadata.modified_by = user
 
-    return str(TV_SHOW_DAO.create_episode(episode=episode_to_store.to_dict()))
+    return str(await TV_SHOW_DAO.create_episode(episode=episode_to_store.to_dict()))
 
 
 @router.get("/episodes/{uri}", response_model=TVShowEpisodeInDB, tags=['tv show episodes'])

@@ -21,7 +21,7 @@ class TVShowDAO():
         """
         self.client = client
 
-    def create(self, tv_show: VideoBaseInDB) -> str:
+    async def create(self, tv_show: VideoBaseInDB) -> str:
         """
         Create a TV Show.
 
@@ -31,7 +31,7 @@ class TVShowDAO():
         LOGGER.debug('Creating tv show from DAO.')
         return self.client.foreign_subs.tv_shows.insert_one(tv_show).inserted_id
 
-    def read(self, tv_show_id: str) -> Dict[str, Any]:
+    async def read(self, tv_show_id: str) -> Dict[str, Any]:
         """
         Read a tv show.
 
@@ -44,7 +44,7 @@ class TVShowDAO():
             tv_show['id'] = str(tv_show.pop('_id'))
         return tv_show
 
-    def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
+    async def read_multi(self, limit=100, skip=0) -> List[Dict[str, Any]]:
         """
         Read multiple tv shows.
 
@@ -59,7 +59,7 @@ class TVShowDAO():
             tv_show['id'] = str(tv_show.pop('_id'))
         return tv_shows
 
-    def update(self, tv_show_id: str, tv_show: VideoBaseInDB):
+    async def update(self, tv_show_id: str, tv_show: VideoBaseInDB):
         """
         Update a tv show.
 
@@ -69,7 +69,7 @@ class TVShowDAO():
         LOGGER.debug(f'Updating tv show with uri: <{tv_show_id}> and tv_show: <{tv_show}>.')
         self.client.foreign_subs.tv_show.update({'_id': ObjectId(tv_show_id)}, {'$set': tv_show})
 
-    def delete(self, tv_show_id: str):
+    async def delete(self, tv_show_id: str):
         """
         Delete a tv show.
 
@@ -78,7 +78,7 @@ class TVShowDAO():
         LOGGER.debug(f'Deleting tv show: <{tv_show_id}>.')
         self.client.foreign_subs.tv_shows.delete_one({'_id': ObjectId(tv_show_id)})
 
-    def create_episode(self, episode: VideoBaseInDB) -> str:
+    async def create_episode(self, episode: VideoBaseInDB) -> str:
         """
         Create a TV Episode.
 
