@@ -148,7 +148,7 @@ async def create_tv_show_episode(uri: ObjectIdStr, episode: VideoBase):
     if not tv_show:
         raise HTTPException(status_code=422, detail='uri must be a valid tv show id.')
     user = 'admin'  # change to real user with auth later
-    LOGGER.debug(f'Creating tv episode for tv show: <{uri}> with data: <{episode}> and '
+    LOGGER.info(f'Creating tv episode for tv show: <{uri}> with data: <{episode}> and '
                  f'user: <{user}>.')
     episode_to_store = ad.Dict(episode.dict())
 

@@ -10,9 +10,10 @@ from pymongo import MongoClient
 from fsubs.config.config import Config
 from fsubs.crud.user import UserDAO
 from fsubs.models.misc import ObjectIdStr
-from fsubs.models.user import Access, UserRead, UserCreate, UserCreateToDAO, UserUpdate, UserPatch
+from fsubs.models.user import Access, UserRead, UserCreate, UserCreateToDAO, UserPatch, UserUpdate
 from fsubs.routers.authenticate import get_token_header
 from fsubs.utils import users as user_utils
+from fsubs.utils.users import check_access
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
@@ -43,7 +44,7 @@ async def read_users(
     """
     Get users.
 
-    A user must have admin access to read other users.
+    Requires `admin` level access.
 
     **param start** - The starting position to start getting users at.
 
@@ -51,17 +52,12 @@ async def read_users(
 
     **returns** - A list of users.
     """
-    LOGGER.debug(f'Getting users with start: <{start}> and page_length: <{page_length}.')
+    LOGGER.info(f'Getting users with start: <{start}> and page_length: <{page_length}.')
     user = ad.Dict(await USER_DAO.read_by_username(username=username))
-    if not user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {username}. Cannot proceed with reading '
-                   f'of users.')
-    if not user.access == Access['admin']:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to read other users.')
+    await check_access(
+        user=user,
+        username=username,
+        level=Access.admin)
     return await USER_DAO.read_multi(limit=page_length, skip=start)
 
 
@@ -76,7 +72,7 @@ async def read_self(username: str = Depends(get_token_header)):
 
     **returns** - The user data.
     """
-    LOGGER.debug(f'Getting user: {username}.')
+    LOGGER.info(f'Getting user: {username}.')
     user = await USER_DAO.read_by_username(username=username)
     if not user:
         raise HTTPException(status_code=500, detail='Unable to get user data for: {username}.')
@@ -92,24 +88,22 @@ async def read_user(username: str, acting_username: str = Depends(get_token_head
     """
     Get the given user.
 
-    A user must have admin access to read other users.
+    Requires `admin` level access to read other users.
 
     **username** - The username of the user to read.
 
     **returns** - The user data.
     """
-    LOGGER.debug(f'Getting user: {username}.')
+    LOGGER.info(f'Getting user: {username}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
-    if not acting_user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with reading '
-                   f'of {username}.')
-    if not acting_user.access == Access['admin'] and acting_username != username:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to read other users.')
-    user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if username == acting_username:
+        user = acting_user
+    else:
+        await check_access(
+            user=acting_user,
+            username=username,
+            level=Access.admin)
+        user = ad.Dict(await USER_DAO.read_by_username(username=username))
     if not user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {username}.')
     return user
@@ -124,24 +118,21 @@ async def read_user_id(user_id: ObjectIdStr, acting_username: str = Depends(get_
     """
     Get the given user.
 
-    A user must have admin access to read other users.
+    A user must have `admin` access to read other users.
 
     **user_id** - The id of the user to read.
 
     **returns** - The user data.
     """
-    LOGGER.debug(f'Getting user id: {user_id}.')
+    LOGGER.info(f'Getting user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
-    if not acting_user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with reading '
-                   f'of {user_id}.')
-    if not acting_user.access == Access['admin'] and acting_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to read other users.')
     user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    if acting_user and user and acting_user.id == user.id:
+        return user
+    await check_access(
+        user=acting_user,
+        username=acting_username,
+        level=Access.admin)
     if not user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
     return user
@@ -197,25 +188,21 @@ async def update_user(
     """
     Update a given user with the given data.
 
-    A user must have admin access to update other users.
+    A user must have `admin` access to update other users.
 
     **user_to_update** - The user data to update the user with.
 
     **returns** - The user data.
     """
-    LOGGER.debug(f'Updating user id: {user_id}.')
+    LOGGER.info(f'Updating user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
-    if not acting_user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with updating '
-                   f'of {user_id}.')
-    if not acting_user.access == Access['admin'] and acting_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to update other users.')
-
     old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    is_self = acting_user and old_user and acting_user.id == old_user.id
+    if not is_self:
+        await check_access(
+            user=acting_user,
+            username=acting_username,
+            level=Access.admin)
     if not old_user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
 
@@ -225,7 +212,7 @@ async def update_user(
         raise HTTPException(
             status_code=422,
             detail=f'Unable to update user {old_user.username} {user_id} to email: '
-                   '{user_to_update.email} because that email is already in use.')
+                   f'{user_to_update.email} because that email is already in use.')
 
     user = ad.Dict(user_to_update.dict())
     # set info that cannot be changed from user
@@ -261,24 +248,21 @@ async def patch_user(
     """
     Patch a given user with the given data.
 
-    A user must have admin access to patch other users.
+    A user must have `admin` access to patch other users.
 
     **user_to_patch** - The user data to patch the user with.
 
     **returns** - The user data.
     """
-    LOGGER.debug(f'Patching user id: {user_id}.')
+    LOGGER.info(f'Patching user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
-    if not acting_user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with patching '
-                   f'of {user_id}.')
-    if not acting_user.access == Access['admin'] and acting_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to patch other users.')
     old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    is_self = acting_user and old_user and acting_user.id == old_user.id
+    if not is_self:
+        await check_access(
+            user=acting_user,
+            username=acting_username,
+            level=Access.admin)
     if not old_user:
         raise HTTPException(status_code=404, detail=f'Unable to find user {user_id}.')
 
@@ -288,8 +272,8 @@ async def patch_user(
         if len(users) > 0 and users[0]['id'] != user_id:
             raise HTTPException(
                 status_code=422,
-                detail=f'Unable to update user {old_user.username} {user_id} to email: '
-                       '{user_to_update.email} because that email is already in use.')
+                detail=f'Unable to patch user {old_user.username} {user_id} to email: '
+                       f'{user_to_patch.email} because that email is already in use.')
 
     user = ad.Dict(user_to_patch.dict())
     # set info that cannot be changed from user
@@ -331,24 +315,19 @@ async def delete_user(
     """
     Delete a user.
 
-    A user must have admin access to delete other users.
+    A user must have `admin` access to delete other users.
 
     **user_id** - The user id of the user to delete.
 
     **returns** - No content.
     """
-    LOGGER.debug(f'Deleting user: <{user_id}>.')
-
+    LOGGER.info(f'Deleting user: <{user_id}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
-    if not acting_user:
-        raise HTTPException(
-            status_code=500,
-            detail=f'Unable to get user data for: {acting_username}. Cannot proceed with deleting '
-                   f'of {user_id}.')
-    LOGGER.debug(f'User access level is: {acting_user.access}. Trying to delete {user_id} as user '
-                 f'{acting_user.id}.')
-    if not acting_user.access == Access['admin'] and acting_user.id != user_id:
-        raise HTTPException(
-            status_code=403,
-            detail='User does not have access to delete other users.')
+    user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    is_self = acting_user and user and acting_user.id == user.id
+    if not is_self:
+        await check_access(
+            user=acting_user,
+            username=acting_username,
+            level=Access.admin)
     await USER_DAO.delete(user_id=user_id)

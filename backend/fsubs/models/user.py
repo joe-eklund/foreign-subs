@@ -7,12 +7,40 @@ from pydantic import BaseModel, validator
 from fsubs.models.misc import Metadata
 
 
-class Access(str, Enum):
+class OrderedEnum(Enum):
+    """An ordered enum."""
+
+    def __ge__(self, other):
+        """Greater than or equal."""
+        if self.__class__ is other.__class__:
+            return self.value >= other.value
+        return NotImplemented
+
+    def __gt__(self, other):
+        """Greater than."""
+        if self.__class__ is other.__class__:
+            return self.value > other.value
+        return NotImplemented
+
+    def __le__(self, other):
+        """Less than or equal."""
+        if self.__class__ is other.__class__:
+            return self.value <= other.value
+        return NotImplemented
+
+    def __lt__(self, other):
+        """Less than."""
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
+
+
+class Access(str, OrderedEnum):
     """The level of access for the user."""
 
-    basic = 'basic'
-    power = 'power'
-    admin = 'admin'
+    admin = 3
+    power = 2
+    basic = 1
 
 
 class UserBase(BaseModel):

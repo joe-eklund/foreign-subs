@@ -30,6 +30,6 @@ app.add_middleware(
 
 LOGGER.info('Loading routers.')
 app.include_router(authenticate.router, prefix="/authenticate")
-app.include_router(movies.router, prefix="/movies", dependencies=[Depends(get_token_header)])
+app.include_router(movies.router, prefix="/movies")
 app.include_router(tvshows.router, prefix="/tv_shows", dependencies=[Depends(get_token_header)])
 app.include_router(users.router, prefix="/users")

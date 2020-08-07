@@ -5,6 +5,10 @@ import logging
 import os
 from typing import Tuple
 
+from fastapi import HTTPException
+
+from fsubs.models.user import Access
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -44,3 +48,32 @@ def verify_password(password: str, salt: str, key: str) -> bool:
         100000
     )
     return binascii.hexlify(new_key).decode() == key
+
+
+async def check_access(
+        user: dict,
+        username: str,
+        obj_to_check: dict = None,
+        level: Access = Access.basic,):
+    """
+    Check that the given user has at least the given access level.
+
+    :param user: The user object to check.
+    :param username: The username of the user. Useful for error message if the user read resulted
+    in `None`.
+    :param obj_to_check: If supplied, and the given user matches the creator of the object, then
+    allow access even if the user doesn't have the required level.
+    :param level: The access level required.
+    :raises HTTPException: If no user was supplied or if the user doesn't have the required access.
+    """
+    LOGGER.info(f'Checking {username} has at least {level} access.')
+    if not user:
+        raise HTTPException(
+            status_code=500,
+            detail=f'Unable to get user data for: {username}. Cannot proceed with action.')
+    if obj_to_check and obj_to_check.get('metadata', {}).get('created_by') == username:
+        return
+    if not user.access >= level:
+        raise HTTPException(
+            status_code=403,
+            detail=f'User {username} does not have at least level {level.name} to perform action.')

@@ -10,9 +10,12 @@ from pymongo import MongoClient
 
 from fsubs.config.config import Config
 from fsubs.crud.movie import MovieDAO
+from fsubs.crud.user import UserDAO
 from fsubs.models.misc import ObjectIdStr
 from fsubs.models.video import VideoBase, VideoBaseInDB, VideoInstance, VideoInstanceInDB
+from fsubs.models.user import Access
 from fsubs.routers.authenticate import get_token_header
+from fsubs.utils.users import check_access
 
 LOGGER = logging.getLogger(__name__)
 router = APIRouter()
@@ -26,12 +29,19 @@ client = MongoClient(
 )
 
 MOVIE_DAO = MovieDAO(client=client)
+USER_DAO = UserDAO(client=client)
 
 # /movies endpoints
 
 
-@router.post("", tags=['movies'], response_model=ObjectIdStr, status_code=201)
-async def create_movie(movie: VideoBase, username: str = Depends(get_token_header)):
+@router.post(
+    "",
+    tags=['movies'],
+    response_model=ObjectIdStr,
+    status_code=201)
+async def create_movie(
+        movie: VideoBase,
+        username: str = Depends(get_token_header)):
     """
     Create a movie.
 
@@ -39,20 +49,23 @@ async def create_movie(movie: VideoBase, username: str = Depends(get_token_heade
 
     **returns** - The id of the newly created movie.
     """
-    user = username  # change to real user with auth later
-    LOGGER.debug(f'Creating movie: <{movie}> as user: <{user}>.')
+    LOGGER.info(f'Creating movie: <{movie}> as user: <{username}>.')
     movie_to_store = ad.Dict(movie.dict())
 
     # Set metadata
     movie_to_store.metadata.date_created = datetime.now(timezone.utc)
-    movie_to_store.metadata.created_by = user
+    movie_to_store.metadata.created_by = username
     movie_to_store.metadata.last_modified = datetime.now(timezone.utc)
-    movie_to_store.metadata.modified_by = user
-    return str(MOVIE_DAO.create(movie=movie_to_store.to_dict()))
+    movie_to_store.metadata.modified_by = username
+    return str(await MOVIE_DAO.create(movie=movie_to_store.to_dict()))
 
 
-@router.get("/{uri}", response_model=VideoBaseInDB, tags=['movies'])
-async def get_movie(uri: ObjectIdStr):
+@router.get(
+    "/{uri}",
+    response_model=VideoBaseInDB,
+    tags=['movies'])
+async def get_movie(
+        uri: ObjectIdStr):
     """
     Get a movie.
 
@@ -60,15 +73,20 @@ async def get_movie(uri: ObjectIdStr):
 
     **returns** - The movie data.
     """
-    LOGGER.debug(f'Getting movie: {uri}.')
+    LOGGER.info(f'Getting movie: {uri}.')
     movie = await MOVIE_DAO.read(movie_id=uri)
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found.")
     return movie
 
 
-@router.get("", response_model=List[VideoBaseInDB], tags=['movies'])
-async def get_movies(start: int = Query(0, ge=0), page_length: int = Query(100, ge=1)):
+@router.get(
+    "",
+    response_model=List[VideoBaseInDB],
+    tags=['movies'])
+async def get_movies(
+        start: int = Query(0, ge=0),
+        page_length: int = Query(100, ge=1)):
     """
     Get movies.
 
@@ -78,14 +96,23 @@ async def get_movies(start: int = Query(0, ge=0), page_length: int = Query(100, 
 
     **returns** - A list of movies.
     """
-    LOGGER.debug(f'Getting movies with start: <{start}> and page_length: <{page_length}>.')
+    LOGGER.info(f'Getting movies with start: <{start}> and page_length: <{page_length}>.')
     return await MOVIE_DAO.read_multi(limit=page_length, skip=start)
 
 
-@router.put("/{uri}", tags=['movies'], response_model=VideoBaseInDB, status_code=201)
-async def update_movie(uri: ObjectIdStr, movie: VideoBase):
+@router.put(
+    "/{uri}",
+    tags=['movies'],
+    response_model=VideoBaseInDB,
+    status_code=201)
+async def update_movie(
+        uri: ObjectIdStr,
+        movie: VideoBase,
+        username: str = Depends(get_token_header)):
     """
     Update a movie.
+
+    Requires `power` level access or to be the owner of the movie being deleted.
 
     **uri** - The uri of the movie to update.
 
@@ -93,12 +120,18 @@ async def update_movie(uri: ObjectIdStr, movie: VideoBase):
 
     **returns** - The new movie data.
     """
-    user = 'admin'  # change to real user with auth later
-    LOGGER.debug(f'Updating movie: <{uri}> with data: <{movie}> and user: <{user}>.')
+    LOGGER.info(f'Updating movie: <{uri}> with data: <{movie}> and user: <{username}>.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+
     movie_to_store = ad.Dict(movie.dict())
 
     # Set metadata
     old_movie = ad.Dict(await MOVIE_DAO.read(movie_id=uri))
+    await check_access(
+        user=acting_user,
+        username=username,
+        obj_to_check=old_movie,
+        level=Access.power)
     if not old_movie:
         LOGGER.debug(f'Movie not found for: {uri}.')
         raise HTTPException(status_code=404, detail="Movie not found.")
@@ -106,7 +139,7 @@ async def update_movie(uri: ObjectIdStr, movie: VideoBase):
     movie_to_store.metadata.date_created = old_movie.metadata.date_created
     movie_to_store.metadata.created_by = old_movie.metadata.created_by
     movie_to_store.metadata.last_modified = datetime.now(timezone.utc)
-    movie_to_store.metadata.modified_by = user
+    movie_to_store.metadata.modified_by = username
 
     await MOVIE_DAO.update(movie_id=uri, movie=movie_to_store.to_dict())
 
@@ -114,18 +147,30 @@ async def update_movie(uri: ObjectIdStr, movie: VideoBase):
     return movie_to_store
 
 
-@router.delete("/{uri}", tags=['movies'], status_code=204)
-async def delete_movie(uri: ObjectIdStr):
+@router.delete(
+    "/{uri}",
+    tags=['movies'],
+    status_code=204)
+async def delete_movie(
+        uri: ObjectIdStr,
+        username: str = Depends(get_token_header)):
     """
     Delete a movie.
 
     This will also delete any associated movie versions.
 
+    Requires `power` level access.
+
     **uri** - The uri of the movie to delete.
 
     **returns** - No content.
     """
-    LOGGER.debug(f'Deleting movie: <{uri}>.')
+    LOGGER.info(f'Deleting movie: <{uri}> as user <{username}>.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    await check_access(
+        user=acting_user,
+        username=username,
+        level=Access.power)
     await MOVIE_DAO.delete(movie_id=uri)
     await MOVIE_DAO.delete_movie_versions(movie_id=uri)
 
@@ -137,7 +182,10 @@ async def delete_movie(uri: ObjectIdStr):
     response_model=ObjectIdStr,
     tags=['movie versions'],
     status_code=201)
-async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
+async def create_movie_version(
+        uri: ObjectIdStr,
+        movie_version: VideoInstance,
+        username: str = Depends(get_token_header)):
     """
     Create a new movie version.
 
@@ -151,26 +199,27 @@ async def create_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     movie = await MOVIE_DAO.read(movie_id=uri)
     if not movie:
         raise HTTPException(status_code=422, detail='uri must be valid movie id.')
-    user = 'admin'  # change to real user with auth later
-    LOGGER.debug(f'Creating movie version for movie: <{uri}> with data: <{movie_version}> and '
-                 f'user: <{user}>.')
+    LOGGER.info(f'Creating movie version for movie: <{uri}> with data: <{movie_version}> and '
+                f'user: <{username}>.')
     movie_version_to_store = ad.Dict(movie_version.dict())
 
     # Set metadata
     movie_version_to_store.video_base_id = uri
     movie_version_to_store.metadata.date_created = datetime.now(timezone.utc)
-    movie_version_to_store.metadata.created_by = user
+    movie_version_to_store.metadata.created_by = username
     movie_version_to_store.metadata.last_modified = datetime.now(timezone.utc)
-    movie_version_to_store.metadata.modified_by = user
+    movie_version_to_store.metadata.modified_by = username
 
     return str(await MOVIE_DAO.create_version(movie_version=movie_version_to_store.to_dict()))
 
 
-@router.get("/versions/{uri}",
-            response_model=VideoInstanceInDB,
-            tags=['movie versions'],
-            status_code=200)
-async def get_movie_version(uri: ObjectIdStr):
+@router.get(
+    "/versions/{uri}",
+    response_model=VideoInstanceInDB,
+    tags=['movie versions'],
+    status_code=200)
+async def get_movie_version(
+        uri: ObjectIdStr):
     """
     Get a movie version.
 
@@ -178,18 +227,20 @@ async def get_movie_version(uri: ObjectIdStr):
 
     **returns** - The movie version data.
     """
-    LOGGER.debug(f'Getting movie version: <{uri}>.')
+    LOGGER.info(f'Getting movie version: <{uri}>.')
     movie_version = await MOVIE_DAO.read_version(movie_version_id=uri)
     if not movie_version:
         raise HTTPException(status_code=404, detail="Movie version not found.")
     return movie_version
 
 
-@router.get("/{uri}/versions",
-            response_model=List[VideoInstanceInDB],
-            tags=['movie versions'],
-            status_code=200)
-async def get_movie_versions(uri: ObjectIdStr):
+@router.get(
+    "/{uri}/versions",
+    response_model=List[VideoInstanceInDB],
+    tags=['movie versions'],
+    status_code=200)
+async def get_movie_versions(
+        uri: ObjectIdStr):
     """
     Get **all** of the versions for a movie.
 
@@ -197,31 +248,49 @@ async def get_movie_versions(uri: ObjectIdStr):
 
     **returns** - A list of movie versions.
     """
-    LOGGER.debug(f'Getting movie versions for movie: {uri}.')
+    LOGGER.info(f'Getting movie versions for movie: {uri}.')
     movie_versions = await MOVIE_DAO.read_movie_versions(movie_id=uri)
     return movie_versions
 
 
-@router.delete("/{uri}/versions", tags=['movie versions'], status_code=204)
-async def delete_movie_versions(uri: ObjectIdStr):
+@router.delete(
+    "/{uri}/versions",
+    tags=['movie versions'],
+    status_code=204)
+async def delete_movie_versions(
+        uri: ObjectIdStr,
+        username: str = Depends(get_token_header)):
     """
     Delete **all** movie versions for a movie.
+
+    Requires `power` level access.
 
     **uri** - The uri of the movie to delete all versions for.
 
     **returns** - No content.
     """
-    LOGGER.debug(f'Deleting movie versions for movie: <{uri}>.')
+    LOGGER.info(f'Deleting movie versions for movie: <{uri}> as user <{username}>.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    await check_access(
+        user=acting_user,
+        username=username,
+        level=Access.power)
     await MOVIE_DAO.delete_movie_versions(movie_id=uri)
 
 
-@router.put("/versions/{uri}",
-            response_model=VideoInstanceInDB,
-            tags=['movie versions'],
-            status_code=201)
-async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
+@router.put(
+    "/versions/{uri}",
+    response_model=VideoInstanceInDB,
+    tags=['movie versions'],
+    status_code=201)
+async def update_movie_version(
+        uri: ObjectIdStr,
+        movie_version: VideoInstance,
+        username: str = Depends(get_token_header)):
     """
     Update a movie version.
+    
+    Requires `power` level access or to be the owner of the movie version being updated.
 
     **uri** - The uri of the movie version of to update.
 
@@ -229,21 +298,28 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
 
     **returns** - The new movie version data.
     """
-    user = 'admin'  # change to real user with auth later
-    LOGGER.debug(f'Updating movie version uri: <{uri}> with movie_version: <{movie_version}> and '
-                 f'user: <{user}>.')
+    LOGGER.info(f'Updating movie version uri: <{uri}> with movie_version: <{movie_version}> and '
+                f'user: <{username}>.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    old_movie_version = ad.Dict(await MOVIE_DAO.read_version(movie_version_id=uri))
+    await check_access(
+        user=acting_user,
+        username=username,
+        obj_to_check=old_movie_version,
+        level=Access.power)
 
     movie_version_to_store = ad.Dict(movie_version.dict())
 
     # Set metadata
-    old_movie_version = ad.Dict(await MOVIE_DAO.read_version(movie_version_id=uri))
 
     movie_version_to_store.metadata.date_created = old_movie_version.metadata.date_created
     movie_version_to_store.metadata.created_by = old_movie_version.metadata.created_by
     movie_version_to_store.metadata.last_modified = datetime.now(timezone.utc)
-    movie_version_to_store.metadata.modified_by = user
+    movie_version_to_store.metadata.modified_by = username
 
-    await MOVIE_DAO.update_version(movie_version_id=uri, movie_version=movie_version_to_store.to_dict())
+    await MOVIE_DAO.update_version(
+        movie_version_id=uri,
+        movie_version=movie_version_to_store.to_dict())
 
     updated_movie = await MOVIE_DAO.read_version(movie_version_id=uri)
     if not updated_movie:
@@ -255,14 +331,28 @@ async def update_movie_version(uri: ObjectIdStr, movie_version: VideoInstance):
     return updated_movie
 
 
-@router.delete("/versions/{uri}", tags=['movie versions'], status_code=204)
-async def delete_movie_version(uri: ObjectIdStr):
+@router.delete(
+    "/versions/{uri}",
+    tags=['movie versions'],
+    status_code=204)
+async def delete_movie_version(
+        uri: ObjectIdStr,
+        username: str = Depends(get_token_header)):
     """
     Delete a movie version.
+
+    Requires `power` level access or to be the owner of the movie version being deleted.
 
     **uri** - The uri of the movie version to delete.
 
     **returns** - No content.
     """
-    LOGGER.debug(f'Deleting movie version: <{uri}>.')
+    LOGGER.info(f'Deleting movie version: <{uri}> as user <{username}>.')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    movie_version = await MOVIE_DAO.read_version(movie_version_id=uri)
+    await check_access(
+        user=acting_user,
+        username=username,
+        obj_to_check=movie_version,
+        level=Access.power)
     await MOVIE_DAO.delete_version(movie_version_id=uri)
