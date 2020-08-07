@@ -98,3 +98,12 @@ class UserDAO():
         """
         LOGGER.debug(f'Updating user with uri: <{user_id}> and user: <{user}>.')
         self.client.foreign_subs.users.update({'_id': ObjectId(user_id)}, {'$set': user})
+
+    async def delete(self, user_id: str):
+        """
+        Delete a user.
+
+        :param user_id: The id of the user to delete.
+        """
+        LOGGER.debug(f'Deleting user: <{user_id}>.')
+        self.client.foreign_subs.users.delete_one({'_id': ObjectId(user_id)})

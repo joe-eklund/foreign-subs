@@ -2,7 +2,7 @@
 from enum import Enum
 import re
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, validator
 
 from fsubs.models.misc import Metadata
 
@@ -10,9 +10,9 @@ from fsubs.models.misc import Metadata
 class Access(str, Enum):
     """The level of access for the user."""
 
-    admin = 'admin'
-    power = 'power'
     basic = 'basic'
+    power = 'power'
+    admin = 'admin'
 
 
 class UserBase(BaseModel):
@@ -86,6 +86,11 @@ class UserCreate(UserUpdate):
         return v
 
 
+class UserPatch(UserUpdate):
+    """User patch data."""
+
+    email: str = None
+    password: str = None
 
 
 class UserRead(UserBase):
