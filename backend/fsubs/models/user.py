@@ -47,7 +47,7 @@ class UserBase(BaseModel):
     """
     User base data.
 
-    **access** - What access level the user is to have. 
+    **access** - What access level the user is to have.
 
     **email** - What email to use for the user.
 

@@ -82,8 +82,22 @@ class TVShowDAO():
         """
         Create a TV Episode.
 
-        :param user: The ``VideoBaseInDB`` object representing the tv episode to create.
+        :param episode: The ``VideoBaseInDB`` object representing the tv episode to create.
         :returns: The id of the newly created tv episode.
         """
         LOGGER.debug('Creating tv episode from DAO.')
         return self.client.foreign_subs.tv_show_episodes.insert_one(episode).inserted_id
+
+    async def read_episode(self, episode_id: str) -> Dict[str, Any]:
+        """
+        Read a TV episode.
+
+        :param episode_id: The id of the TV episode to read.
+        :returns: Dict representing the TV episode.
+        """
+        LOGGER.debug(f'Reading tv episode: <{episode_id}>.')
+        tv_episode = self.client.foreign_subs.tv_show_episodes.find_one(
+            {'_id': ObjectId(episode_id)})
+        if tv_episode:
+            tv_episode['id'] = str(tv_episode.pop('_id'))
+        return tv_episode

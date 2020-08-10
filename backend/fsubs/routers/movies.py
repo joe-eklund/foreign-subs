@@ -112,7 +112,7 @@ async def update_movie(
     """
     Update a movie.
 
-    Requires `power` level access or to be the owner of the movie being deleted.
+    Requires `power` level access.
 
     **uri** - The uri of the movie to update.
 
@@ -124,18 +124,16 @@ async def update_movie(
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
 
     movie_to_store = ad.Dict(movie.dict())
-
-    # Set metadata
-    old_movie = ad.Dict(await MOVIE_DAO.read(movie_id=uri))
     await check_access(
         user=acting_user,
         username=username,
-        obj_to_check=old_movie,
         level=Access.power)
+    old_movie = ad.Dict(await MOVIE_DAO.read(movie_id=uri))
     if not old_movie:
         LOGGER.debug(f'Movie not found for: {uri}.')
         raise HTTPException(status_code=404, detail="Movie not found.")
 
+    # Set metadata
     movie_to_store.metadata.date_created = old_movie.metadata.date_created
     movie_to_store.metadata.created_by = old_movie.metadata.created_by
     movie_to_store.metadata.last_modified = datetime.now(timezone.utc)
@@ -289,7 +287,7 @@ async def update_movie_version(
         username: str = Depends(get_token_header)):
     """
     Update a movie version.
-    
+
     Requires `power` level access or to be the owner of the movie version being updated.
 
     **uri** - The uri of the movie version of to update.
