@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "fsubs"
+version = "20.5.0.dev0"
+description = "Document foreign subtitles in media."
+authors = ["Joe Eklund"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+addict = "^2.3.0"
+fastapi = "^0.61.1"
+PyJWT = "^1.7.1"
+pymongo = "^3.11.0"
+python-multipart = "^0.0.5"
+typer = "^0.3.2"
+uvicorn = "^0.12.2"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.8.4"
+flake8-docstrings = "^1.5.0"
+
+[tool.poetry.scripts]
+fsubs = 'fsubs.__main__:cli'
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
