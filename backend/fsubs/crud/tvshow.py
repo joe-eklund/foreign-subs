@@ -1,4 +1,4 @@
-"""CRUD functions for tv shows."""
+"""CRUD functions for TV shows."""
 
 import logging
 from typing import Any, Dict, List
@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 from bson.objectid import ObjectId
 
 from fsubs.models.video import VideoBaseInDB
+from fsubs.models.tvshow import TVShowEpisodeInDB
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class TVShowDAO():
 
     async def create(self, tv_show: VideoBaseInDB) -> str:
         """
-        Create a TV Show.
+        Create a tv Show.
 
         :param user: The ``VideoBaseInDB`` object representing the tv show to create.
         :returns: The id of the newly created tv show.
@@ -78,11 +79,11 @@ class TVShowDAO():
         LOGGER.debug(f'Deleting tv show: <{tv_show_id}>.')
         self.client.foreign_subs.tv_shows.delete_one({'_id': ObjectId(tv_show_id)})
 
-    async def create_episode(self, episode: VideoBaseInDB) -> str:
+    async def create_episode(self, episode: TVShowEpisodeInDB) -> str:
         """
-        Create a TV Episode.
+        Create a tv episode.
 
-        :param episode: The ``VideoBaseInDB`` object representing the tv episode to create.
+        :param episode: The ``TVShowEpisodeInDB`` object representing the tv episode to create.
         :returns: The id of the newly created tv episode.
         """
         LOGGER.debug('Creating tv episode from DAO.')
@@ -90,10 +91,10 @@ class TVShowDAO():
 
     async def read_episode(self, episode_id: str) -> Dict[str, Any]:
         """
-        Read a TV episode.
+        Read a tv episode.
 
-        :param episode_id: The id of the TV episode to read.
-        :returns: Dict representing the TV episode.
+        :param episode_id: The id of the tv episode to read.
+        :returns: Dict representing the tv episode.
         """
         LOGGER.debug(f'Reading tv episode: <{episode_id}>.')
         tv_episode = self.client.foreign_subs.tv_show_episodes.find_one(
@@ -101,3 +102,28 @@ class TVShowDAO():
         if tv_episode:
             tv_episode['id'] = str(tv_episode.pop('_id'))
         return tv_episode
+
+    async def read_tv_show_episodes(self, tv_show_id: str) -> List[Dict[str, Any]]:
+        """
+        Read all tv episodes for a tv show.
+
+        :param tv_show_id: The id of the tv show to read episodes for.
+        :returns: Dict representing all the tv episodes for the tv show.
+        """
+        LOGGER.debug(f'Reading tv episodes for tv_show_id: {tv_show_id}.')
+        tv_episodes = self.client.foreign_subs.tv_show_episodes.find(
+            {'video_base_id': tv_show_id})
+        tv_episodes = list(tv_episodes)
+        for episode in tv_episodes:
+            episode['id'] = str(episode.pop('_id'))
+        print(f'Found episodes: {tv_episodes}.')
+        return tv_episodes
+
+    async def update_episode(self, episode_id: str, episode: TVShowEpisodeInDB) -> str:
+        """
+        Update a tv episode.
+
+        :param episode_id: The id of the tv episode to update.
+        :param episode: The episode data to update with.
+        """
+        raise NotImplementedError

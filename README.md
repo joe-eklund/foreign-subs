@@ -20,11 +20,11 @@ Inside the `docker` folder, run `docker-compose up -d` to launch MongoDB. Run `d
 
 ## Backend
 
-Create a Python virtual environment with `python -m venv venv` and `source venv/bin/activate`.
+Fsubs uses [Poetry](https://python-poetry.org/) to handle dependency management. You can install Poetry by running `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -`.
 
-`cd` into the `backend` directory and run `pip install -r requirements.txt` to install dependencies.
+Then install`fsubs` by running `poetry install` inside of the `backend` directory.
 
-Run `fsubs`. Add `--help` for additional options.
+You can now run `fsubs` by running `poetry run fsubs`. Add `--help` for additional options.
 
 ### Configuration
 
