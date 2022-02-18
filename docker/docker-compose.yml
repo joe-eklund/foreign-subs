@@ -10,7 +10,8 @@ services:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: example
         volumes:
-            - ./mongo/data:/data/db
+            - mongo_data:/data/db
+            - mongo_configdb:/data/configdb
 
     mongo-express:
         image: mongo-express
@@ -20,3 +21,10 @@ services:
         environment:
             ME_CONFIG_MONGODB_ADMINUSERNAME: root
             ME_CONFIG_MONGODB_ADMINPASSWORD: example
+            ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
+volumes:
+  mongo_data:
+    driver: local
+  mongo_configdb:
+    driver: local

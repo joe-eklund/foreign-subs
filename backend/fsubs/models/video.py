@@ -59,7 +59,7 @@ class SubType(str, Enum):
     """
     What type the subtitles are.
 
-    Separate means the subs are on a separate track. Hardocded means the subs are burned into the
+    Separate means the subs are on a separate track. Hardcoded means the subs are burned into the
     video. Forced means there is a separate track that has been flagged forced.
     """
 

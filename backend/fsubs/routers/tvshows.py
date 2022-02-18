@@ -48,6 +48,8 @@ async def create_tv_show(
 
     **tv_show** - The tv show data to create the tv show with.
 
+    **username** - The username performing the action.
+
     **returns** - The id of the newly created tv show.
     """
     LOGGER.info(f'Creating tv show: <{tv_show}> as user: <{username}>.')
@@ -119,10 +121,15 @@ async def update_tv_show(
 
     **tv_show** - The tv data to update tv show with.
 
+    **username** - The username performing the action.
+    
     **returns** - The new tv show data.
     """
     LOGGER.info(f'Updating tv_show: <{uri}> with data: <{tv_show}> and user: <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=acting_user,
         username=username,
@@ -162,10 +169,15 @@ async def delete_tv_show(
 
     **uri** - The uri of the tv show to delete.
 
+    **username** - The username performing the action.
+
     **returns** - No content.
     """
     LOGGER.info(f'Deleting tv show: <{uri}> as user {username}. ')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=acting_user,
         username=username,
@@ -191,6 +203,8 @@ async def create_tv_show_episode(
     **uri** - The uri of the tv show to attach the tv episode to.
 
     **episode** - The tv show episode data to create the tv show episode with.
+
+    **username** - The username performing the action.
 
     **returns** - The id of the newly created tv show episode.
     """
@@ -270,10 +284,15 @@ async def update_tv_show_episode(
 
     **episode** - The tv episode data to update the tv show episode with.
 
+    **username** - The username performing the action.
+
     **returns** - The new tv show episode data.
     """
     LOGGER.info(f'Updating tv episode: <{uri}> with data: <{episode}> and user: <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=acting_user,
         username=username,
@@ -297,17 +316,33 @@ async def update_tv_show_episode(
 
 
 @router.delete("/episodes/{uri}", tags=['tv show episodes'], status_code=204)
-async def delete_tv_show_episode(uri: ObjectIdStr):
+async def delete_tv_show_episode(
+        uri: ObjectIdStr,
+        username: str = Depends(get_token_header)):
     """
     Delete a tv show episode.
+
+    Requires `power` level access.
 
     This will also delete any tv show episode versions.
 
     **uri** - The uri of the tv show episode to delete.
 
+    **username** - The username performing the action.
+
     **returns** - No content.
     """
-    raise NotImplementedError
+    LOGGER.info(f'Deleting tv episode: <{uri}> as user {username}. ')
+    acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
+    await check_access(
+        user=acting_user,
+        username=username,
+        level=Access.power)
+    await TV_SHOW_DAO.delete_episode(episode_id=uri)
+    # TODO delete episode versions
 
 
 #  /tv_shows/episodes/versions endpoints

@@ -5,6 +5,7 @@ from typing import List
 
 import addict as ad
 from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi.responses import Response
 from pymongo import MongoClient
 
 from fsubs.config.config import Config
@@ -54,6 +55,9 @@ async def read_users(
     """
     LOGGER.info(f'Getting users with start: <{start}> and page_length: <{page_length}.')
     user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=user,
         username=username,
@@ -75,7 +79,8 @@ async def read_self(username: str = Depends(get_token_header)):
     LOGGER.info(f'Getting user: {username}.')
     user = await USER_DAO.read_by_username(username=username)
     if not user:
-        raise HTTPException(status_code=500, detail='Unable to get user data for: {username}.')
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     return user
 
 
@@ -96,6 +101,9 @@ async def read_user(username: str, acting_username: str = Depends(get_token_head
     """
     LOGGER.info(f'Getting user: {username}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {acting_username} unauthorized, were '
+                                                    'you deleted?')
     if username == acting_username:
         user = acting_user
     else:
@@ -126,6 +134,9 @@ async def read_user_id(user_id: ObjectIdStr, acting_username: str = Depends(get_
     """
     LOGGER.info(f'Getting user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {acting_username} unauthorized, were '
+                                                    'you deleted?')
     user = ad.Dict(await USER_DAO.read(user_id=user_id))
     if acting_user and user and acting_user.id == user.id:
         return user
@@ -196,6 +207,9 @@ async def update_user(
     """
     LOGGER.info(f'Updating user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {acting_username} unauthorized, were '
+                                                    'you deleted?')
     old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
     is_self = acting_user and old_user and acting_user.id == old_user.id
     if not is_self:
@@ -256,6 +270,9 @@ async def patch_user(
     """
     LOGGER.info(f'Patching user id: {user_id}.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {acting_username} unauthorized, were '
+                                                    'you deleted?')
     old_user = ad.Dict(await USER_DAO.read(user_id=user_id))
     is_self = acting_user and old_user and acting_user.id == old_user.id
     if not is_self:
@@ -323,7 +340,12 @@ async def delete_user(
     """
     LOGGER.info(f'Deleting user: <{user_id}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=acting_username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {acting_username} unauthorized, were '
+                                                    'you deleted?')
     user = ad.Dict(await USER_DAO.read(user_id=user_id))
+    if not user:
+        return Response(status_code=204)
     is_self = acting_user and user and acting_user.id == user.id
     if not is_self:
         await check_access(

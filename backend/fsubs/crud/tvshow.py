@@ -119,11 +119,22 @@ class TVShowDAO():
         print(f'Found episodes: {tv_episodes}.')
         return tv_episodes
 
-    async def update_episode(self, episode_id: str, episode: TVShowEpisodeInDB) -> str:
+    async def update_episode(self, episode_id: str, episode: TVShowEpisodeInDB):
         """
         Update a tv episode.
 
         :param episode_id: The id of the tv episode to update.
         :param episode: The episode data to update with.
         """
-        raise NotImplementedError
+        LOGGER.debug(f'Updating tv episode with uri: <{episode_id}> and episode: <{episode}>.')
+        self.client.foreign_subs.tv_show_episodes.update(
+            {'_id': ObjectId(episode_id)}, {'$set': episode})
+
+    async def delete_episode(self, episode_id: str):
+        """
+        Delete a tv episode.
+
+        :param episode_id: The id of the episode to delete.
+        """
+        LOGGER.debug(f'Deleting tv episode: <{episode_id}>.')
+        self.client.foreign_subs.tv_show_episodes.delete_one({'_id': ObjectId(episode_id)})

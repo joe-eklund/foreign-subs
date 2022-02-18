@@ -122,7 +122,9 @@ async def update_movie(
     """
     LOGGER.info(f'Updating movie: <{uri}> with data: <{movie}> and user: <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
-
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     movie_to_store = ad.Dict(movie.dict())
     await check_access(
         user=acting_user,
@@ -165,6 +167,9 @@ async def delete_movie(
     """
     LOGGER.info(f'Deleting movie: <{uri}> as user <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=acting_user,
         username=username,
@@ -269,6 +274,9 @@ async def delete_movie_versions(
     """
     LOGGER.info(f'Deleting movie versions for movie: <{uri}> as user <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     await check_access(
         user=acting_user,
         username=username,
@@ -299,6 +307,9 @@ async def update_movie_version(
     LOGGER.info(f'Updating movie version uri: <{uri}> with movie_version: <{movie_version}> and '
                 f'user: <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     old_movie_version = ad.Dict(await MOVIE_DAO.read_version(movie_version_id=uri))
     await check_access(
         user=acting_user,
@@ -347,6 +358,9 @@ async def delete_movie_version(
     """
     LOGGER.info(f'Deleting movie version: <{uri}> as user <{username}>.')
     acting_user = ad.Dict(await USER_DAO.read_by_username(username=username))
+    if not acting_user:
+        raise HTTPException(status_code=401, detail=f'User {username} unauthorized, were '
+                                                    'you deleted?')
     movie_version = await MOVIE_DAO.read_version(movie_version_id=uri)
     await check_access(
         user=acting_user,

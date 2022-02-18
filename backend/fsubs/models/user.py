@@ -92,8 +92,8 @@ class UserUpdate(BaseModel):
             raise ValueError('Cannot have empty string for password.')
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long.')
-        if len(v) > 1024:
-            raise ValueError('Password cannot be longer than 1024 characters.')
+        if len(v) > 255:
+            raise ValueError('Password cannot be longer than 255 characters.')
         return v
 
 
@@ -111,6 +111,8 @@ class UserCreate(UserUpdate):
         """Ensure username is valid."""
         if not v:
             raise ValueError('Cannot have empty string for username.')
+        if not v.isalnum():
+            raise ValueError('Username can only have alphanumeric characters.')
         return v
 
 

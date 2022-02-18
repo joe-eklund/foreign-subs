@@ -6,6 +6,7 @@ docker/mongo
 
 # VS Code
 .vscode
+*.code-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
